@@ -1,4 +1,5 @@
 import { PrismaClient, AttributeType } from "@prisma/client";
+import { hash as argonHash } from "@node-rs/argon2";
 
 const prisma = new PrismaClient();
 
@@ -8,8 +9,35 @@ const prisma = new PrismaClient();
 const PROP65_EXHAUST =
   "WARNING: This product can expose you to chemicals including chromium, which is known to the State of California to cause cancer. For more information go to www.P65Warnings.ca.gov.";
 
-async function main() {
-  // Idempotent: wipe catalog tables, then re-create.
+// First admin account, from env — admin registration is invite-only, so the
+// very first OWNER has to come from somewhere. Runs only when no admin exists.
+async function bootstrapAdmin() {
+  const count = await prisma.adminUser.count();
+  if (count > 0) return;
+  const email = process.env.ADMIN_EMAIL?.toLowerCase();
+  const password = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!email || !password) {
+    console.log(
+      "No admin account yet. Set ADMIN_EMAIL and ADMIN_INITIAL_PASSWORD and re-run the seed to create the first OWNER."
+    );
+    return;
+  }
+  await prisma.adminUser.create({
+    data: { email, role: "OWNER", passwordHash: await argonHash(password) },
+  });
+  console.log(`Created OWNER admin ${email}. TOTP setup runs on first sign-in.`);
+}
+
+async function seedCatalog() {
+  // Safe by default: never touches an existing catalog unless forced.
+  const existing = await prisma.section.count();
+  if (existing > 0 && process.env.SEED_FORCE !== "true") {
+    console.log(
+      `Catalog already has ${existing} sections — skipping seed (set SEED_FORCE=true to wipe and re-seed).`
+    );
+    return;
+  }
+
   await prisma.cartItem.deleteMany();
   await prisma.productImage.deleteMany();
   await prisma.product.deleteMany();
@@ -210,6 +238,11 @@ async function main() {
   console.log(
     `Seeded ${sections} sections, ${brandCount} brands, ${attributes} attributes, ${productCount} products.`
   );
+}
+
+async function main() {
+  await seedCatalog();
+  await bootstrapAdmin();
 }
 
 main()

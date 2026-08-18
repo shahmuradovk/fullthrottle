@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "quiet" | "destructive";
   size?: "default" | "small";
   full?: boolean;
+  asChildHref?: string; // render as a Link styled like a button
 };
 
 const variants = {
@@ -28,19 +30,29 @@ export function Button({
   full,
   className,
   type,
+  asChildHref,
+  children,
   ...props
 }: ButtonProps) {
+  const classes = cn(
+    "inline-flex items-center justify-center gap-2 font-body font-semibold rounded-1 cursor-pointer transition-[background,color,filter] duration-(--dur-fast) disabled:cursor-not-allowed",
+    variants[variant],
+    sizes[size],
+    full && "flex w-full",
+    className
+  );
+
+  if (asChildHref) {
+    return (
+      <Link href={asChildHref} className={cn(classes, "!no-underline", variant === "primary" && "!text-accent-ink", variant === "secondary" && "!text-ink")}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <button
-      type={type ?? "button"}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 font-body font-semibold rounded-1 cursor-pointer transition-[background,color,filter] duration-(--dur-fast) disabled:cursor-not-allowed",
-        variants[variant],
-        sizes[size],
-        full && "flex w-full",
-        className
-      )}
-      {...props}
-    />
+    <button type={type ?? "button"} className={classes} {...props}>
+      {children}
+    </button>
   );
 }

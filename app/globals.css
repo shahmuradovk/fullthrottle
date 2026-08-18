@@ -152,6 +152,16 @@
   );
 }
 
+/* mobile filter bottom sheet */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 /* skeleton pulse — the only ambient animation in the system */
 @keyframes ftpulse {
   0%,

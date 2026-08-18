@@ -1,0 +1,317 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Catalog ──────────────────────────────────────────────────────────────────
+
+model Section {
+  id         String      @id @default(cuid())
+  name       String
+  slug       String      @unique
+  tagline    String?
+  position   Int         @default(0)
+  brands     Brand[]
+  attributes Attribute[]
+  products   Product[]
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  sectionId String
+  section   Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  products  Product[]
+
+  @@unique([sectionId, slug])
+}
+
+enum AttributeType {
+  SELECT
+  MULTISELECT
+  NUMBER
+  TEXT
+  BOOLEAN
+}
+
+model Attribute {
+  id         String        @id @default(cuid())
+  sectionId  String
+  section    Section       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  key        String // stable machine key, generated from name on create, never mutated
+  name       String // display label, editable
+  type       AttributeType
+  options    String[]      @default([])
+  unit       String?
+  filterable Boolean       @default(true)
+  position   Int           @default(0)
+
+  @@unique([sectionId, key])
+}
+
+enum SupplySource {
+  MANUAL
+  SUPPLIER
+}
+
+model Product {
+  id                 String       @id @default(cuid())
+  sectionId          String
+  brandId            String
+  section            Section      @relation(fields: [sectionId], references: [id])
+  brand              Brand        @relation(fields: [brandId], references: [id])
+  name               String
+  slug               String       @unique
+  sku                String       @unique
+  description        String?
+  priceCents         Int
+  stock              Int          @default(0)
+  active             Boolean      @default(true)
+  values             Json         @default("{}") // { [attributeKey]: string | string[] | number | boolean }
+
+  supplySource       SupplySource @default(MANUAL)
+  supplierId         String?
+  supplier           Supplier?    @relation(fields: [supplierId], references: [id])
+  supplierSku        String?
+  supplierStock      Int?
+  supplierPriceCents Int?
+  mapPriceCents      Int? // minimum advertised price — never advertise below this
+  priceLocked        Boolean      @default(true)
+  lastSyncedAt       DateTime?
+
+  // US compliance — populated from day one
+  prop65Warning      String? // Prop 65 warning text; null = no warning required
+  carbEoNumber       String? // CARB Executive Order number for emissions-related parts
+  caLegal            Boolean      @default(true) // false → block shipping to CA addresses
+  hazmatClass        String? // battery, oil, aerosol → restricts shipping methods
+  oversizeFreight    Boolean      @default(false)
+
+  images             ProductImage[]
+  cartItems          CartItem[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([sectionId, active])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String
+  position  Int     @default(0)
+}
+
+// ── Customers (storefront realm) ─────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  contactEmail  String? // for Apple "Hide My Email" relay users
+  emailVerified DateTime?
+  passwordHash  String? // null for social-only accounts
+  accounts      Account[]
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+  createdAt     DateTime  @default(now())
+}
+
+// Auth.js v5 provider link — one row per (provider, account)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  line1     String
+  line2     String?
+  city      String
+  state     String // 2-letter US code, validated in Zod against the 50-state + DC enum
+  zip       String // 5 digits, validated
+  phone     String?
+  isDefault Boolean @default(false)
+}
+
+// ── Admin (separate realm — never shares a table, session, or cookie) ────────
+
+enum AdminRole {
+  OWNER
+  MANAGER
+  CONTENT
+  ORDERS
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         AdminRole
+  totpSecret   String? // set during first-login TOTP enrollment; MFA enforced via totpEnabled
+  totpEnabled  Boolean   @default(false)
+  lastLoginAt  DateTime?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String // "product.update"
+  entity    String
+  entityId  String
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}
+
+// ── Cart ─────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique // null while the shopper is anonymous; one cart per user
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String     @unique // httpOnly cookie, merged into the user cart on sign-in
+  items     CartItem[]
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  qty       Int
+
+  @@unique([cartId, productId])
+}
+
+// ── Orders ───────────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CARD
+  APPLE_PAY
+  GOOGLE_PAY
+  PAYPAL
+}
+
+model Order {
+  id                  String        @id @default(cuid())
+  number              String        @unique // FT-10001, from the order_number_seq Postgres sequence
+  userId              String
+  user                User          @relation(fields: [userId], references: [id])
+  status              OrderStatus   @default(PENDING_PAYMENT)
+  items               OrderItem[]
+  events              OrderEvent[]
+
+  subtotalCents       Int
+  shippingCents       Int
+  taxCents            Int
+  totalCents          Int
+
+  shipTo              Json // address snapshot, never a live FK
+  paymentMethod       PaymentMethod
+  paymentRef          String? // Stripe PaymentIntent id or PayPal order id
+  statementDescriptor String
+
+  carrier             String?
+  trackingNumber      String?
+
+  // Compelling Evidence 3.0 — captured at checkout, not derived later
+  ipAddress           String?
+  userAgent           String?
+  deviceHash          String?
+  sessionId           String?
+
+  createdAt           DateTime      @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id             String @id @default(cuid())
+  orderId        String
+  order          Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  // snapshot — never join back to Product for display
+  name           String
+  brandName      String
+  sku            String
+  unitPriceCents Int
+  qty            Int
+}
+
+model OrderEvent {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  actorId   String?
+  createdAt DateTime    @default(now())
+}
+
+// ── Supplier seam (built now, connected later) ───────────────────────────────
+
+model Supplier {
+  id            String    @id @default(cuid())
+  name          String
+  apiBaseUrl    String?
+  credentialRef String? // key in the secret store, never the secret itself
+  syncMinutes   Int       @default(30)
+  enabled       Boolean   @default(false)
+  products      Product[]
+  syncRuns      SyncRun[]
+}
+
+model SyncRun {
+  id         String    @id @default(cuid())
+  supplierId String
+  supplier   Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  updated    Int       @default(0)
+  errors     Json?
+}

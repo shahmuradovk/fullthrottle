@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#24282C;}
+a{color:#E8622C;text-decoration:none} a:hover{color:#E8E6E0;text-decoration:underline}
+@keyframes ftpulse{0%,100%{opacity:1}50%{opacity:.55}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div style="padding:48px; font-family:'Barlow',sans-serif; color:#E8E6E0;">
+  <div style="display:flex; align-items:baseline; gap:16px; margin-bottom:28px;">
+    <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:40px; letter-spacing:.01em;">FULLTHROTTLE</div>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">COMPONENT SHEET · FT-CS-01 · REV A</div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; max-width:1560px;">
+
+    <div style="width:360px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">01 · BUTTON</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:11px 20px; cursor:pointer;" style-hover="background:#33403B;">Add to cart</button>
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:10px 19px; cursor:pointer;" style-hover="background:#2A3138;">Save for later</button>
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:transparent; color:#E8622C; border:none; padding:11px 8px; cursor:pointer; text-decoration:underline; text-underline-offset:3px;">Change bike</button>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:11px 20px; box-shadow:0 0 0 2px #1F242A, 0 0 0 4px #E8622C;">Add to cart</button>
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:#3A4148; color:#9BA3A8; border:none; border-radius:2px; padding:11px 20px; cursor:not-allowed;">Out of stock</button>
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:15px; background:#E0705F; color:#1F242A; border:none; border-radius:2px; padding:11px 20px; cursor:pointer;">Remove item</button>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">primary · secondary · quiet / focus · disabled · destructive</div>
+    </div>
+
+    <div style="width:360px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:18px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">02 · INPUT / SELECT / CHECKBOX</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label for="in1" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#E8E6E0; text-transform:uppercase;">Street address</label>
+        <input id="in1" value="4418 Mill St, Apt 2" style="font-family:'Barlow',sans-serif; font-size:15px; color:#E8E6E0; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:10px 12px; outline:none;" />
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label for="in2" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#E8E6E0; text-transform:uppercase;">Card number</label>
+        <input id="in2" value="4242 0000" style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#E8E6E0; background:#382520; border:1.5px solid #E0705F; border-radius:2px; padding:10px 12px; outline:none;" />
+        <div style="font-size:13px; color:#E0705F;">That's 8 digits — a card number has 16. Check the card and re-enter it.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label for="sel1" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#E8E6E0; text-transform:uppercase;">State</label>
+        <select id="sel1" style="font-family:'Barlow',sans-serif; font-size:15px; color:#E8E6E0; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:10px 12px;"><option>Nevada</option><option>Oregon</option></select>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="width:16px; height:16px; border:1.5px solid #E8E6E0; border-radius:2px; background:#E8622C; color:#16191D; display:inline-flex; align-items:center; justify-content:center; font-size:11px; line-height:1;">✓</span>Use this address for billing</div>
+        <div style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="width:16px; height:16px; border:1.5px solid #E8E6E0; border-radius:2px; background:#1F242A;"></span>Email me when back in stock</div>
+      </div>
+    </div>
+
+    <div style="width:400px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:18px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">03 · FILTER CHIP + STOCK BADGE</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#1F242A; background:#E8622C; border-radius:999px; padding:6px 6px 6px 12px;">Certification: ECE 22.06 <span style="width:16px; height:16px; border-radius:999px; background:rgba(22,25,29,.25); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">×</span></span>
+        <span style="display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#E8E6E0; border:1px solid #3A4148; border-radius:999px; padding:6px 12px; background:#1F242A; cursor:pointer;" style-hover="border-color:#E8E6E0;">Weight ≤ 1,500 g</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-start;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#58B380; border:1px solid #58B380; border-radius:2px; padding:4px 8px;">IN STOCK</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#DFA23C; border:1px solid #DFA23C; border-radius:2px; padding:4px 8px;">LOW STOCK · 2 LEFT</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#E8622C; border:1px solid #E8622C; border-radius:2px; padding:4px 8px;">SHIPS FROM SUPPLIER · 2–4 DAYS</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; border:1px dashed #9BA3A8; border-radius:2px; padding:4px 8px;">OUT OF STOCK</span>
+      </div>
+    </div>
+
+    <div style="width:340px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">04 · PRODUCT CARD</div>
+      <div style="border:1px solid #3A4148; border-radius:2px; overflow:hidden;" style-hover="border-color:#E8E6E0;">
+        <div style="height:150px; background:repeating-linear-gradient(-45deg,#232A31 0 10px,#1C2228 10px 20px); display:flex; align-items:center; justify-content:center; position:relative;">
+          <span style="position:absolute; top:10px; left:10px; width:22px; height:22px; border:1.5px solid #E8622C; border-radius:999px; color:#E8622C; font-family:'IBM Plex Mono',monospace; font-size:11px; display:flex; align-items:center; justify-content:center;">1</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">product photo</span>
+        </div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:6px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">AGV · AGV-K6S-MB</div>
+          <div style="font-weight:600; font-size:19px;">K6 S</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">Full-face · 1,270 g · DOT · ECE 22.06</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#58B380; border:1px solid #58B380; border-radius:2px; padding:3px 7px;">IN STOCK</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:500;">$549.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:460px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">05 · TABLE (SPEC / FICHE)</div>
+      <div style="border-top:1.5px solid #E8E6E0;">
+        <div style="display:grid; grid-template-columns:36px 1fr 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #3A4148; align-items:baseline;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">01</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; text-transform:uppercase;">Weight</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">1,270 g</span>
+        </div>
+        <div style="display:grid; grid-template-columns:36px 1fr 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #3A4148; align-items:baseline;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">02</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; text-transform:uppercase;">Pinlock included</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">Yes</span>
+        </div>
+        <div style="display:grid; grid-template-columns:36px 1fr 1fr; gap:12px; padding:10px 0; border-bottom:1px solid #3A4148; align-items:baseline;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">03</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; text-transform:uppercase;">Certification</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">DOT · ECE 22.06 · SNELL M2020</span>
+        </div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">unit · boolean · multi-value — all from AttributeDef[]</div>
+    </div>
+
+    <div style="width:400px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">06 · MODAL + TOAST</div>
+      <div style="border:1px solid #3A4148; border-radius:4px; background:#1F242A; box-shadow:0 8px 24px rgba(0,0,0,.45); padding:20px; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:22px;">Remove this item?</div>
+        <div style="font-size:14px; color:#9BA3A8;">Shoei RF-1400, size L will leave your cart. You can add it again from Moto Helmets.</div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:8px 14px; cursor:pointer;">Keep it</button>
+          <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E0705F; color:#1F242A; border:none; border-radius:2px; padding:9px 15px; cursor:pointer;">Remove item</button>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; background:#E8E6E0; color:#16191D; border-radius:2px; padding:12px 16px; box-shadow:0 8px 24px rgba(0,0,0,.45);">
+        <span style="font-size:14px; flex:1;">Added to cart — K6 S, size M</span>
+        <a href="#" style="font-size:14px; font-weight:600; color:#B8481F;">View cart</a>
+      </div>
+    </div>
+
+    <div style="width:520px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">07 · ORDER TIMELINE</div>
+      <div style="display:flex; align-items:flex-start;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+          <span style="width:22px; height:22px; border-radius:999px; background:#E8622C; color:#16191D; font-size:12px; display:flex; align-items:center; justify-content:center;">✓</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px;">PAID</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">AUG 14</span>
+        </div>
+        <div style="height:1.5px; background:#E8E6E0; flex:1; margin-top:10px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+          <span style="width:22px; height:22px; border-radius:999px; background:#E8622C; color:#16191D; font-size:12px; display:flex; align-items:center; justify-content:center;">✓</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px;">PREPARING</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">AUG 14</span>
+        </div>
+        <div style="height:1.5px; background:#E8E6E0; flex:1; margin-top:10px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+          <span style="width:22px; height:22px; border-radius:999px; border:2px solid #E8622C; background:#1F242A; box-sizing:border-box;"></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">PACKED</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">NOW</span>
+        </div>
+        <div style="height:1.5px; background:#3A4148; flex:1; margin-top:10px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+          <span style="width:22px; height:22px; border-radius:999px; border:1.5px solid #3A4148; background:#1F242A; box-sizing:border-box;"></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">SHIPPED</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">TRACKING NO. APPEARS HERE</span>
+        </div>
+        <div style="height:1.5px; background:#3A4148; flex:1; margin-top:10px;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1;">
+          <span style="width:22px; height:22px; border-radius:999px; border:1.5px solid #3A4148; background:#1F242A; box-sizing:border-box;"></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">DELIVERED</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:400px; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; display:flex; flex-direction:column; gap:14px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">08 · EMPTY STATE + SKELETON</div>
+      <div style="border:1px dashed #3A4148; border-radius:2px; padding:28px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:22px;">No helmets match these filters</div>
+        <div style="font-size:14px; color:#9BA3A8;">Removing the weight limit brings back 9 results.</div>
+        <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:8px 14px; cursor:pointer;">Clear all filters</button>
+      </div>
+      <div style="border:1px solid #3A4148; border-radius:2px; padding:16px; display:flex; flex-direction:column; gap:10px; animation:ftpulse 1.6s ease-in-out infinite;">
+        <div style="height:110px; background:#232A31; border-radius:2px;"></div>
+        <div style="height:12px; width:55%; background:#232A31; border-radius:2px;"></div>
+        <div style="height:12px; width:80%; background:#232A31; border-radius:2px;"></div>
+        <div style="height:12px; width:35%; background:#232A31; border-radius:2px;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

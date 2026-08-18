@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#24282C;}
+a{color:#E8622C;text-decoration:none} a:hover{color:#E8E6E0;text-decoration:underline}
+</style>
+</helmet>
+<div style="display:flex; gap:80px; padding:56px; align-items:flex-start; font-family:'Barlow',sans-serif; color:#E8E6E0; font-size:14px;">
+
+  <div data-screen-label="Admin shell" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 10 · ADMIN SHELL + NAVIGATION — admin.fullthrottle.com</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;">
+        <span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span>
+        <div style="flex:1;"></div>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#B9BFC4;">rita@fullthrottle.com</span>
+      </header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav10 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px;">
+          <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0 0 16px;">TODAY — TUE AUG 18</h1>
+          <div style="display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start;">
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px;">
+              <div style="padding:10px 16px; border-bottom:1.5px solid #E8E6E0; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8;">TO PACK — 3 ORDERS</div>
+              <sc-for list="{{ toPack }}" as="o" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:110px 1fr 110px 90px; gap:10px; padding:10px 16px; border-bottom:1px solid #3A4148; align-items:center;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">{{ o.id }}</span>
+                  <span>{{ o.items }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">{{ o.paid }}</span>
+                  <a href="#" style="font-size:13px; justify-self:end;">Open</a>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px;">
+              <div style="padding:10px 16px; border-bottom:1.5px solid #E8E6E0; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8;">LOW STOCK — SET REORDER OR HIDE</div>
+              <sc-for list="{{ lowStock }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 16px; border-bottom:1px solid #3A4148;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">{{ p.sku }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#DFA23C;">{{ p.left }} LEFT</span>
+                </div>
+              </sc-for>
+              <div style="padding:10px 16px; font-size:12px; color:#9BA3A8;">Counts are manual until the supplier sync connects.</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Sections and brands" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 11 · SECTIONS AND BRANDS</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;"><span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span></header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav11 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0;">SECTIONS AND BRANDS</h1>
+            <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:9px 14px; cursor:pointer;">Add section</button>
+          </div>
+          <sc-for list="{{ adminSections }}" as="s" hint-placeholder-count="2">
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:12px 16px; border-bottom:1px solid #3A4148;">
+                <div style="display:flex; align-items:baseline; gap:12px;">
+                  <span style="font-weight:600; font-size:16px;">{{ s.name }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">{{ s.slug }} · {{ s.meta }}</span>
+                </div>
+                <a href="#" style="font-size:13px; color:#E0705F;">Delete section</a>
+              </div>
+              <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px;">
+                <input value="{{ s.tagline }}" aria-label="Section tagline" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0; max-width:420px;" />
+                <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                  <sc-for list="{{ s.brands }}" as="b" hint-placeholder-count="4">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid #3A4148; border-radius:2px; padding:6px 10px; white-space:nowrap;">{{ b.name }} <span style="color:#9BA3A8; cursor:pointer;">×</span></span>
+                  </sc-for>
+                  <input placeholder="Brand name" aria-label="New brand" style="font-family:'Barlow',sans-serif; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:7px 9px; background:#1F242A; color:#E8E6E0; width:140px;" />
+                  <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:13px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:6px 11px; cursor:pointer;">Add brand</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+          <div style="font-size:13px; color:#9BA3A8;">A new section starts with an empty attribute template. Products can’t be added until it has at least one attribute.</div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Attribute template editor" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 12 · ATTRIBUTE TEMPLATE EDITOR — THE LEGO SYSTEM’S CONTROL ROOM</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;"><span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span></header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav12 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; margin-bottom:6px;"><a href="#" style="color:#9BA3A8;">Attributes</a> / Moto Helmet</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0;">MOTO HELMET — ATTRIBUTE TEMPLATE</h1>
+            <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:9px 14px; cursor:pointer;">Add attribute</button>
+          </div>
+          <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px;">
+            <div style="display:grid; grid-template-columns:32px 1fr 130px 90px 1fr 110px 130px 60px; gap:10px; padding:10px 16px; border-bottom:1.5px solid #E8E6E0; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8;"><span></span><span>LABEL</span><span>TYPE</span><span>UNIT</span><span>OPTIONS</span><span>FILTERABLE</span><span>FILTER AS</span><span></span></div>
+            <sc-for list="{{ attributes }}" as="a" hint-placeholder-count="6">
+              <div style="display:grid; grid-template-columns:32px 1fr 130px 90px 1fr 110px 130px 60px; gap:10px; padding:11px 16px; border-bottom:1px solid #3A4148; align-items:center;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">{{ a.n }}</span>
+                <input value="{{ a.label }}" aria-label="Attribute label" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:7px 9px; background:#1F242A; color:#E8E6E0;" />
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; border:1px solid #3A4148; border-radius:2px; padding:7px 9px; background:#16191D;">{{ a.type }} ▾</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">{{ a.unit }}</span>
+                <span style="font-size:12px; color:#9BA3A8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ a.options }}</span>
+                <span style="width:15px; height:15px; border:1.5px solid #E8E6E0; border-radius:2px; background: {{ a.boxBg }}; color:#1F242A; display:inline-flex; align-items:center; justify-content:center; font-size:10px; justify-self:center;">{{ a.mark }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color: {{ a.controlColor }};">{{ a.control }}</span>
+                <a href="#" style="font-size:12px; color:#E0705F; justify-self:end;">Delete</a>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex; gap:24px; margin-top:12px; font-size:13px; color:#9BA3A8;">
+            <span>Filterable attributes appear on the storefront sidebar automatically.</span>
+            <span>Every attribute becomes a spec row and a product-form field. Nothing else to wire.</span>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Product form" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 13 · PRODUCT FORM — FIELDS GENERATED FROM THE SECTION TEMPLATE</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;"><span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span></header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav13 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; margin-bottom:6px;"><a href="#" style="color:#9BA3A8;">Products</a> / New product</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0;">NEW PRODUCT — MOTO HELMET</h1>
+            <div style="display:flex; gap:8px;">
+              <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:8px 13px; cursor:pointer;">Save draft</button>
+              <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:9px 14px; cursor:pointer;">Publish product</button>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; border-bottom:1.5px solid #E8E6E0; padding-bottom:8px;">BASE — SAME FOR EVERY SECTION</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="pb" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">BRAND</label><select id="pb" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A;"><option>AGV</option></select></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="pn" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">NAME</label><input id="pn" value="K6 S" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="ps" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">SKU</label><input id="ps" value="AGV-K6S-MB" style="font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="pp" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">PRICE (USD)</label><input id="pp" value="549.00" style="font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="pq" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">STOCK ON HAND</label><input id="pq" value="9" style="font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></div>
+                <div style="display:flex; flex-direction:column; gap:5px;"><label for="psk" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">SUPPLIER SKU</label><input id="psk" placeholder="For the supplier sync" style="font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:5px;"><label for="pdsc" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">DESCRIPTION</label><textarea id="pdsc" rows="3" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0; resize:vertical;">Aramid and fiberglass shell in four sizes, so a small head gets a small shell. Five intakes and six extractors keep it usable in summer traffic. Pinlock 120 lens included.</textarea></div>
+              <div style="font-size:12px; color:#9BA3A8;">Stock state is derived from the count: over 3 = in stock, 1–3 = low stock, 0 = out of stock. Supplier-synced products show “Ships from supplier (2–4 days)”.</div>
+              <div style="border:1px dashed #3A4148; border-radius:2px; padding:20px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">DROP PRODUCT PHOTOS — FIRST ONE IS THE CARD PHOTO</div>
+            </div>
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#E8622C; border-bottom:1.5px solid #E8E6E0; padding-bottom:8px;">FROM THE MOTO HELMET TEMPLATE — 6 FIELDS</div>
+              <sc-for list="{{ formFields }}" as="f" hint-placeholder-count="6">
+                <div style="display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:center;">
+                  <label style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;">{{ f.label }}</label>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}"><span style="flex:1; font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#16191D;">{{ f.value }} ▾</span></sc-if>
+                    <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}"><input value="{{ f.value }}" aria-label="{{ f.label }}" style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:8px 10px; background:#1F242A; color:#E8E6E0;" /></sc-if>
+                    <sc-if value="{{ f.isBool }}" hint-placeholder-val="{{ false }}"><span style="width:15px; height:15px; border:1.5px solid #E8E6E0; border-radius:2px; background:#E8622C; color:#16191D; display:inline-flex; align-items:center; justify-content:center; font-size:10px;">✓</span><span style="font-size:14px;">Included</span></sc-if>
+                    <sc-if value="{{ f.isMulti }}" hint-placeholder-val="{{ false }}"><span style="display:flex; gap:6px; flex-wrap:wrap;"><sc-for list="{{ f.chips }}" as="c" hint-placeholder-count="2"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; background:#E8622C; color:#1F242A; border-radius:999px; padding:4px 10px;">{{ c.label }} ×</span></sc-for><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid #3A4148; border-radius:999px; padding:4px 10px; color:#9BA3A8;">+ add</span></span></sc-if>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">{{ f.unit }}</span>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="font-size:12px; color:#9BA3A8;">Add an attribute to the Moto Helmet template and a seventh field appears here — no release needed.</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Orders" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 14 · ORDERS LIST + DETAIL WITH STATUS CHANGE</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;"><span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span></header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav14 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px; display:grid; grid-template-columns:1fr 400px; gap:20px; align-items:start;">
+          <div>
+            <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0 0 14px;">ORDERS</h1>
+            <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px;">
+              <div style="display:grid; grid-template-columns:110px 1fr 120px 100px; gap:10px; padding:10px 16px; border-bottom:1.5px solid #E8E6E0; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8;"><span>ORDER</span><span>CUSTOMER</span><span>STATUS</span><span>TOTAL</span></div>
+              <sc-for list="{{ adminOrders }}" as="o" hint-placeholder-count="5">
+                <div style="display:grid; grid-template-columns:110px 1fr 120px 100px; gap:10px; padding:11px 16px; border-bottom:1px solid #3A4148; align-items:center; background: {{ o.rowBg }}; cursor:pointer;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">{{ o.id }}</span>
+                  <span>{{ o.customer }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.05em; color: {{ o.color }}; border:1px solid {{ o.color }}; border-radius:2px; padding:2px 6px; justify-self:start;">{{ o.status }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">{{ o.total }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:20px; display:flex; flex-direction:column; gap:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500;">FT-10012</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">PAID AUG 18, 11:42 AM</span>
+            </div>
+            <div style="font-size:14px;">Dan Kovač · Reno, NV · 2 items · <span style="font-family:'IBM Plex Mono',monospace;">$1,567.46</span></div>
+            <div style="display:flex; flex-direction:column; gap:6px; border:1px solid #3A4148; border-radius:2px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:13px;"><span>Akrapovič Slip-On Line Titanium</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">× 1</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:13px;"><span>AGV K6 S, size M</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">× 1</span></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="oc" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">CARRIER + TRACKING NUMBER</label>
+              <div style="display:flex; gap:8px;">
+                <select id="oc" aria-label="Carrier" style="font-family:'Barlow',sans-serif; font-size:14px; border:1px solid #3A4148; border-radius:2px; padding:9px 10px; background:#1F242A; width:110px;"><option>UPS</option><option>FedEx</option><option>USPS</option></select>
+                <input placeholder="Tracking number" aria-label="Tracking number" style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:13px; border:1.5px solid #E0705F; border-radius:2px; padding:8px 10px; background:#382520; color:#E8E6E0;" />
+              </div>
+              <div style="font-size:12px; color:#E0705F;">Enter a tracking number before marking this shipped.</div>
+            </div>
+            <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:11px; cursor:pointer;">Mark as Shipped — email the customer</button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Supplier integration" style="width:1360px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 15 · SUPPLIER INTEGRATION — DISABLED STATE</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:48px; background:#101316; color:#E8E6E0;"><span style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:20px;">FULLTHROTTLE</span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; border:1px solid #9BA3A8; border-radius:2px; padding:2px 6px; color:#B9BFC4;">ADMIN</span></header>
+      <div style="display:grid; grid-template-columns:190px 1fr; min-height:560px;">
+        <nav style="border-right:1px solid #3A4148; padding:16px 0; display:flex; flex-direction:column; gap:1px; background:#1F242A;">
+          <sc-for list="{{ nav15 }}" as="n" hint-placeholder-count="6">
+            <a href="#" style="font-size:14px; font-weight: {{ n.w }}; color: {{ n.c }}; background: {{ n.bg }}; border-left:3px solid {{ n.bar }}; padding:9px 16px; text-decoration:none;">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+        <main style="padding:24px 28px;">
+          <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0 0 16px;">SUPPLIER</h1>
+          <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:24px; max-width:720px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <h2 style="font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:22px; margin:0;">SUPPLIER STOCK SYNC</h2>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em; color:#9BA3A8; border:1px dashed #9BA3A8; border-radius:2px; padding:3px 7px;">NOT CONNECTED</span>
+                </div>
+                <p style="font-size:14px; color:#9BA3A8; max-width:440px; margin:10px 0 0; line-height:1.55;">When connected, supplier feeds set the four stock states and the 2–4 day ship window automatically, every 30 minutes. Until then, every product runs from the manual source — stock is whatever you enter on the product form.</p>
+              </div>
+              <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#3A4148; color:#9BA3A8; border:none; border-radius:2px; padding:10px 16px; cursor:not-allowed;" disabled="disabled">Connect supplier</button>
+            </div>
+            <div style="border-top:1px solid #3A4148; margin-top:20px; padding-top:16px; display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:110px; flex:none; letter-spacing:.06em;">FLAG</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#DFA23C;">SUPPLIER_SYNC_ENABLED = false</span></div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:110px; flex:none; letter-spacing:.06em;">SUPPLIER</span><span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">—</span></div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:110px; flex:none; letter-spacing:.06em;">API ENDPOINT</span><span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">—</span></div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:110px; flex:none; letter-spacing:.06em;">API KEY</span><span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">—</span></div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:110px; flex:none; letter-spacing:.06em;">SYNC INTERVAL</span><span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">30 min</span></div>
+              <div style="font-size:13px; color:#9BA3A8; margin-top:6px;">When the supplier documentation arrives, only the adapter gets written — product, cart, and checkout screens stay untouched.</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const items = ["Overview", "Sections", "Attributes", "Products", "Orders", "Supplier"];
+    const navFor = (active) => items.map(label => label === active
+      ? { label, w: 600, c: "#E8E6E0", bg: "#16191D", bar: "#E8622C" }
+      : { label, w: 500, c: "#9BA3A8", bg: "transparent", bar: "transparent" });
+    const toPack = [
+      { id: "FT-10012", items: "Akrapovič Slip-On + AGV K6 S", paid: "11:42 AM" },
+      { id: "FT-10011", items: "Shoei RF-1400, size L", paid: "12:07 PM" },
+      { id: "FT-10010", items: "HJC RPHA 12 Carbon, size M", paid: "1:31 PM" },
+    ];
+    const lowStock = [
+      { sku: "ARA-CSX-WH", left: 2 },
+      { sku: "SCP-S1GP-04", left: 3 },
+      { sku: "SHO-RF14-BK", left: 4 },
+    ];
+    const adminSections = [
+      { name: "Moto Exhaust", slug: "/moto-exhaust", meta: "6 ATTRIBUTES · 4 PRODUCTS", tagline: "Slip-ons, full systems and headers", brands: [{ name: "Akrapovič" }, { name: "Yoshimura" }, { name: "Vance & Hines" }, { name: "SC-Project" }] },
+      { name: "Moto Helmets", slug: "/moto-helmets", meta: "6 ATTRIBUTES · 5 PRODUCTS", tagline: "DOT, ECE and SNELL certified lids", brands: [{ name: "AGV" }, { name: "Shoei" }, { name: "HJC" }, { name: "Arai" }, { name: "Bell" }] },
+    ];
+    const attr = (n, label, type, unit, options, filterable, control) => ({
+      n, label, type, unit: unit || "—", options: options || "—",
+      boxBg: filterable ? "#E8E6E0" : "#1F242A", mark: filterable ? "✓" : "",
+      control: filterable ? control : "—", controlColor: filterable ? "#E8E6E0" : "#3A4148",
+    });
+    const attributes = [
+      attr("01", "Shell type", "select", "", "Full face, Modular, Open face, Off-road", true, "checkbox"),
+      attr("02", "Size", "multiselect", "", "XS, S, M, L, XL, 2XL", true, "checkbox"),
+      attr("03", "Certification", "multiselect", "", "DOT, ECE 22.06, SNELL M2020", true, "checkbox"),
+      attr("04", "Shell material", "select", "", "Carbon fiber, Fiberglass composite, Polycarbonate", true, "checkbox"),
+      attr("05", "Weight", "number", "g", "", true, "range"),
+      attr("06", "Pinlock included", "boolean", "", "Yes / No", true, "yes / no"),
+    ];
+    const formFields = [
+      { label: "Shell type", value: "Full face", isSelect: true, unit: "" },
+      { label: "Size", isMulti: true, chips: [{ label: "S" }, { label: "M" }, { label: "L" }, { label: "XL" }], unit: "" },
+      { label: "Certification", isMulti: true, chips: [{ label: "DOT" }, { label: "ECE 22.06" }], unit: "" },
+      { label: "Shell material", value: "Fiberglass composite", isSelect: true, unit: "" },
+      { label: "Weight", value: "1,270", isInput: true, unit: "g" },
+      { label: "Pinlock included", value: "", isBool: true, unit: "" },
+    ];
+    const adminOrders = [
+      { id: "FT-10012", customer: "Dan Kovač", status: "PACKED", color: "#E8622C", total: "$1,567.46", rowBg: "#16191D" },
+      { id: "FT-10011", customer: "Maya Ortiz", status: "PREPARING", color: "#DFA23C", total: "$611.29", rowBg: "transparent" },
+      { id: "FT-10010", customer: "J. Whitfield", status: "PAID", color: "#58B380", total: "$482.06", rowBg: "transparent" },
+      { id: "FT-10008", customer: "T. Nakamura", status: "SHIPPED", color: "#E8622C", total: "$1,204.55", rowBg: "transparent" },
+      { id: "FT-10002", customer: "R. Beaulieu", status: "DELIVERED", color: "#9BA3A8", total: "$88.90", rowBg: "transparent" },
+    ];
+    return {
+      nav10: navFor("Overview"), nav11: navFor("Sections"), nav12: navFor("Attributes"),
+      nav13: navFor("Products"), nav14: navFor("Orders"), nav15: navFor("Supplier"),
+      toPack, lowStock, adminSections, attributes, formFields, adminOrders,
+    };
+  }
+}
+</script>
+</body>
+</html>

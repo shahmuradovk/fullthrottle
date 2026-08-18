@@ -1,0 +1,14 @@
+# Netlify deploy configuration.
+# Connect this repo in the Netlify UI; the Next.js runtime is picked up from
+# the plugin below. Set DATABASE_URL (and later the auth/payment secrets from
+# .env.example) in Site settings → Environment variables.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

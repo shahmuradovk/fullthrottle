@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#24282C;}
+a{color:#E8622C;text-decoration:none} a:hover{color:#E8E6E0;text-decoration:underline}
+</style>
+</helmet>
+<div style="display:flex; gap:80px; padding:56px; align-items:flex-start; font-family:'Barlow',sans-serif; color:#E8E6E0;">
+
+  <div data-screen-label="Category listing" style="width:1440px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 02 · CATEGORY LISTING — DYNAMIC FILTERS FROM ATTRIBUTE TEMPLATE</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:28px; padding:0 40px; height:64px; background:#1F242A; border-bottom:1px solid #3A4148;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:26px; letter-spacing:.01em;">FULLTHROTTLE</div>
+        <nav style="display:flex; gap:20px;">
+          <sc-for list="{{ sections }}" as="s" hint-placeholder-count="2">
+            <a href="#" style="font-weight:500; font-size:15px; color: {{ s.color }}; border-bottom:2px solid {{ s.underline }}; padding:20px 2px;">{{ s.name }}</a>
+          </sc-for>
+        </nav>
+        <div style="flex:1; display:flex; justify-content:center;">
+          <div style="display:flex; align-items:center; gap:10px; width:380px; border:1px solid #3A4148; border-radius:2px; padding:9px 12px; background:#16191D;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">⌕</span>
+            <span style="font-size:14px; color:#9BA3A8;">Search part number or name</span>
+          </div>
+        </div>
+        <button style="display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#E8E6E0; background:transparent; border:1px solid #E8E6E0; border-radius:2px; padding:8px 12px; cursor:pointer;">YOUR BIKE: KAWASAKI Z900 ’21 <span style="color:#9BA3A8;">▾</span></button>
+        <a href="#" style="font-size:15px; font-weight:500; color:#E8E6E0;">Sign in</a>
+        <a href="#" style="font-size:15px; font-weight:500; color:#E8E6E0;">Cart (2)</a>
+      </header>
+      <div style="padding:32px 40px 12px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8; margin-bottom:10px;"><a href="#" style="color:#9BA3A8;">Home</a> / Moto Helmets</div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between;">
+          <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:40px; margin:0;">MOTO HELMETS <span style="font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:14px; color:#9BA3A8;">· 5 PRODUCTS</span></h1>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="sort" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">SORT</label>
+            <select id="sort" style="font-family:'Barlow',sans-serif; font-size:14px; color:#E8E6E0; background:#1F242A; border:1px solid #3A4148; border-radius:2px; padding:8px 10px;"><option>Fits my bike first</option><option>Price: low to high</option><option>Weight: lightest first</option></select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:32px; padding:12px 40px 48px; align-items:flex-start;">
+        <aside style="width:264px; flex:none;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; border-bottom:1.5px solid #E8E6E0; padding-bottom:10px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em;">FILTERS</span>
+            <a href="#" style="font-size:13px;">Clear all (3)</a>
+          </div>
+          <sc-for list="{{ filterGroups }}" as="g" hint-placeholder-count="5">
+            <div style="border-bottom:1px solid #3A4148; padding:14px 0;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;">{{ g.name }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">−</span>
+              </div>
+              <sc-if value="{{ g.isCheck }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ g.options }}" as="o" hint-placeholder-count="3">
+                    <label style="display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer;">
+                      <span style="width:15px; height:15px; flex:none; border:1.5px solid #E8E6E0; border-radius:2px; background: {{ o.boxBg }}; color:#1F242A; display:inline-flex; align-items:center; justify-content:center; font-size:10px; line-height:1;">{{ o.mark }}</span>
+                      <span style="flex:1;">{{ o.label }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">{{ o.count }}</span>
+                    </label>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ g.isRange }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <input value="{{ g.min }}" aria-label="Minimum" style="width:70px; font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:7px 8px; background:#1F242A; color:#E8E6E0;" />
+                  <span style="color:#9BA3A8;">–</span>
+                  <input value="{{ g.max }}" aria-label="Maximum" style="width:70px; font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid #3A4148; border-radius:2px; padding:7px 8px; background:#1F242A; color:#E8E6E0;" />
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">{{ g.unit }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8; padding-top:12px; line-height:1.6;">Filter groups render from the section’s attribute template — none of these labels are hardcoded.</div>
+        </aside>
+        <main style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+            <span style="display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#1F242A; background:#E8622C; border-radius:999px; padding:6px 6px 6px 12px;">Shell type: Full face <span style="width:16px; height:16px; border-radius:999px; background:rgba(22,25,29,.25); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">×</span></span>
+            <span style="display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#1F242A; background:#E8622C; border-radius:999px; padding:6px 6px 6px 12px;">Certification: ECE 22.06 <span style="width:16px; height:16px; border-radius:999px; background:rgba(22,25,29,.25); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">×</span></span>
+            <span style="display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#1F242A; background:#E8622C; border-radius:999px; padding:6px 6px 6px 12px;">Weight ≤ 1,500 g <span style="width:16px; height:16px; border-radius:999px; background:rgba(22,25,29,.25); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;">×</span></span>
+          </div>
+          <sc-if value="{{ showGrid }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+              <sc-for list="{{ products }}" as="p" hint-placeholder-count="6">
+                <div style="background:#1F242A; border:1px solid #3A4148; border-radius:2px; overflow:hidden; cursor:pointer; transition:border-color 120ms;" style-hover="border-color:#E8E6E0;">
+                  <div style="height:180px; background:repeating-linear-gradient(-45deg,#232A31 0 10px,#1C2228 10px 20px); display:flex; align-items:center; justify-content:center; position:relative;">
+                    <span style="position:absolute; top:12px; left:12px; width:22px; height:22px; border:1.5px solid #E8622C; border-radius:999px; color:#E8622C; font-family:'IBM Plex Mono',monospace; font-size:11px; display:flex; align-items:center; justify-content:center; background:#1F242A;">{{ p.n }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">product photo</span>
+                  </div>
+                  <div style="padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9BA3A8;">{{ p.brand }} · {{ p.sku }}</div>
+                    <div style="font-weight:600; font-size:19px;">{{ p.name }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">{{ p.spec }}</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color: {{ p.stockColor }}; border: 1px {{ p.borderStyle }} {{ p.stockColor }}; border-radius:2px; padding:3px 7px;">{{ p.stock }}</span>
+                      <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:500;">{{ p.price }}</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-top:32px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; background:#E8622C; color:#16191D; border-radius:2px;">1</span>
+              <a href="#" style="font-family:'IBM Plex Mono',monospace; font-size:13px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #3A4148; border-radius:2px;">2</a>
+              <a href="#" style="font-family:'IBM Plex Mono',monospace; font-size:13px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #3A4148; border-radius:2px;">3</a>
+              <a href="#" style="font-family:'IBM Plex Mono',monospace; font-size:13px; height:34px; padding:0 12px; display:inline-flex; align-items:center; border:1px solid #3A4148; border-radius:2px;">Next</a>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px dashed #3A4148; border-radius:2px; padding:64px 40px; display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; background:#1F242A;">
+              <div style="font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:28px;">No helmets match these filters</div>
+              <div style="font-size:15px; color:#9BA3A8;">Removing the weight limit brings back 9 results.</div>
+              <div style="display:flex; gap:10px;">
+                <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:#E8622C; color:#16191D; border:none; border-radius:2px; padding:10px 16px; cursor:pointer;">Remove weight limit</button>
+                <button style="font-family:'Barlow',sans-serif; font-weight:600; font-size:14px; background:transparent; color:#E8E6E0; border:1.5px solid #E8E6E0; border-radius:2px; padding:9px 15px; cursor:pointer;">Clear all filters</button>
+              </div>
+            </div>
+          </sc-if>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div data-screen-label="Product detail" style="width:1440px; flex:none;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8; margin-bottom:12px;">SCREEN 03 · PRODUCT DETAIL — DYNAMIC SPEC TABLE, FITMENT, STOCK STATE (tweakable)</div>
+    <div style="background:#16191D; border:1px solid #3A4148;">
+      <header style="display:flex; align-items:center; gap:28px; padding:0 40px; height:64px; background:#1F242A; border-bottom:1px solid #3A4148;">
+        <div style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:26px; letter-spacing:.01em;">FULLTHROTTLE</div>
+        <nav style="display:flex; gap:20px;">
+          <sc-for list="{{ sections2 }}" as="s" hint-placeholder-count="2">
+            <a href="#" style="font-weight:500; font-size:15px; color: {{ s.color }}; border-bottom:2px solid {{ s.underline }}; padding:20px 2px;">{{ s.name }}</a>
+          </sc-for>
+        </nav>
+        <div style="flex:1;"></div>
+        <button style="display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#E8E6E0; background:transparent; border:1px solid #E8E6E0; border-radius:2px; padding:8px 12px; cursor:pointer;">YOUR BIKE: KAWASAKI Z900 ’21 <span style="color:#9BA3A8;">▾</span></button>
+        <a href="#" style="font-size:15px; font-weight:500; color:#E8E6E0;">Sign in</a>
+        <a href="#" style="font-size:15px; font-weight:500; color:#E8E6E0;">Cart (2)</a>
+      </header>
+      <div style="padding:32px 40px 56px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8; margin-bottom:24px;"><a href="#" style="color:#9BA3A8;">Home</a> / <a href="#" style="color:#9BA3A8;">Moto Exhaust</a> / Akrapovič</div>
+        <div style="display:grid; grid-template-columns:1fr 480px; gap:48px; align-items:start;">
+          <div>
+            <div style="height:520px; background:repeating-linear-gradient(-45deg,#232A31 0 12px,#1C2228 12px 24px); border:1px solid #3A4148; border-radius:2px; display:flex; align-items:center; justify-content:center; position:relative;">
+              <span style="position:absolute; top:16px; left:16px; display:flex; align-items:center; gap:8px;"><span style="width:22px; height:22px; border:1.5px solid #E8622C; border-radius:999px; color:#E8622C; font-family:'IBM Plex Mono',monospace; font-size:11px; display:flex; align-items:center; justify-content:center; background:#1F242A;">1</span><span style="width:24px; height:1.5px; background:#E8622C;"></span></span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">product photo — muffler, right side</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px;">
+              <div style="height:100px; border:1.5px solid #E8E6E0; border-radius:2px; background:repeating-linear-gradient(-45deg,#232A31 0 8px,#1C2228 8px 16px); display:flex; align-items:center; justify-content:center;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">right side</span></div>
+              <div style="height:100px; border:1px solid #3A4148; border-radius:2px; background:repeating-linear-gradient(-45deg,#232A31 0 8px,#1C2228 8px 16px); display:flex; align-items:center; justify-content:center;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">end cap</span></div>
+              <div style="height:100px; border:1px solid #3A4148; border-radius:2px; background:repeating-linear-gradient(-45deg,#232A31 0 8px,#1C2228 8px 16px); display:flex; align-items:center; justify-content:center;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">link pipe</span></div>
+              <div style="height:100px; border:1px solid #3A4148; border-radius:2px; background:repeating-linear-gradient(-45deg,#232A31 0 8px,#1C2228 8px 16px); display:flex; align-items:center; justify-content:center;"><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8;">on bike</span></div>
+            </div>
+            <div style="margin-top:48px;">
+              <p style="font-size:15px; line-height:1.6; max-width:680px; margin:0 0 32px;">Titanium outer sleeve with a carbon end cap. Bolts to the stock header, keeps the OEM catalytic converter, and drops roughly 40% of the factory silencer weight. Sound is deeper without being obnoxious at cruising rpm.</p>
+              <div style="display:flex; align-items:baseline; justify-content:space-between; border-bottom:1.5px solid #E8E6E0; padding-bottom:10px;">
+                <h2 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:28px; margin:0;">SPECIFICATIONS</h2>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8;">FICHE AKR-S-Y10SO · REV A</span>
+              </div>
+              <sc-for list="{{ specs }}" as="row" hint-placeholder-count="8">
+                <div style="display:grid; grid-template-columns:44px 260px 1fr; gap:16px; padding:12px 0; border-bottom:1px solid #3A4148; align-items:baseline;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#E8622C;">{{ row.n }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color:#9BA3A8; text-transform:uppercase;">{{ row.k }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.v }}</span>
+                </div>
+              </sc-for>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#9BA3A8; padding-top:10px;">Rows render from the section’s attribute template — select, boolean, and unit types shown.</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0; position:sticky; top:24px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.08em; color:#9BA3A8;">AKRAPOVIČ · AKR-S-Y10SO</div>
+            <h1 style="font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:44px; line-height:1.05; margin:8px 0 4px;">Slip-On Line Titanium</h1>
+            <div style="font-size:15px; color:#9BA3A8;">Kawasaki Z900 · 2020–2024</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:30px; font-weight:500; margin:20px 0 4px;">$899.00</div>
+            <div style="font-size:13px; color:#9BA3A8;">Free shipping over $99 · $9.95 under that</div>
+            <div style="display:flex; align-items:flex-start; gap:12px; border:1px solid #58B380; border-radius:2px; background:#1E2A22; padding:14px 16px; margin-top:24px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#58B380; margin-top:1px;">✓</span>
+              <div style="flex:1;">
+                <div style="font-weight:600; font-size:15px; color:#58B380;">Fits your 2021 Kawasaki Z900</div>
+                <div style="font-size:13px; color:#9BA3A8; margin-top:2px;">Checked against the Kawasaki fitment chart, 2020–2024 (not Z900 SE). <a href="#">Not your bike?</a></div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px; margin-top:20px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; color: {{ stockColor }}; border: 1px {{ stockBorderStyle }} {{ stockColor }}; border-radius:2px; padding:4px 8px;">{{ stockLabel }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9BA3A8;">{{ shipLine }}</span>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+              <div style="display:flex; align-items:center; border:1px solid #3A4148; border-radius:2px; background:#1F242A;">
+                <button aria-label="Decrease quantity" onClick="{{ dec }}" style="width:42px; height:48px; background:transparent; border:none; font-size:18px; color:#E8E6E0; cursor:pointer;">−</button>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; width:36px; text-align:center;">{{ qty }}</span>
+                <button aria-label="Increase quantity" onClick="{{ inc }}" style="width:42px; height:48px; background:transparent; border:none; font-size:18px; color:#E8E6E0; cursor:pointer;">+</button>
+              </div>
+              <button style="flex:1; font-family:'Barlow',sans-serif; font-weight:600; font-size:16px; background: {{ ctaBg }}; color: {{ ctaColor }}; border:none; border-radius:2px; padding:0 24px; height:48px; cursor:pointer;">{{ ctaLabel }}</button>
+            </div>
+            <sc-if value="{{ isOut }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px; color:#9BA3A8; margin-top:10px;">We’ll email you once — no list, no follow-ups.</div>
+            </sc-if>
+            <div style="border-top:1px solid #3A4148; margin-top:28px; padding-top:16px; display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:90px; flex:none; letter-spacing:.06em;">SHIPS FROM</span>Reno, NV — orders before 2 pm ET leave the same day</div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:90px; flex:none; letter-spacing:.06em;">RETURNS</span>30 days, unfitted parts, label on us</div>
+              <div style="display:flex; gap:12px; font-size:14px;"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#9BA3A8; width:90px; flex:none; letter-spacing:.06em;">INSTALL</span>Slip-on — hand tools, about 40 minutes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;detailStock&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;in-stock&quot;,&quot;options&quot;:[&quot;in-stock&quot;,&quot;low-stock&quot;,&quot;supplier&quot;,&quot;out-of-stock&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;States&quot;},&quot;zeroResults&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;States&quot;}}">
+class Component extends DCLogic {
+  state = { qty: 1 };
+  renderVals() {
+    const active = { color: "#E8E6E0", underline: "#E8E6E0" };
+    const idle = { color: "#9BA3A8", underline: "transparent" };
+    const sections = [
+      { name: "Moto Exhaust", ...idle },
+      { name: "Moto Helmets", ...active },
+    ];
+    const sections2 = [
+      { name: "Moto Exhaust", ...active },
+      { name: "Moto Helmets", ...idle },
+    ];
+    const chk = (label, count, checked) => ({ label, count, boxBg: checked ? "#E8E6E0" : "#1F242A", mark: checked ? "✓" : "" });
+    const filterGroups = [
+      { name: "Availability", isCheck: true, options: [chk("In stock", 2, false), chk("Ships from supplier", 1, false), chk("Hide out of stock", 1, false)] },
+      { name: "Shell type", isCheck: true, options: [chk("Full face", 4, true), chk("Modular", 1, false), chk("Open face", 0, false), chk("Off-road", 0, false)] },
+      { name: "Size", isCheck: true, options: [chk("XS", 1, false), chk("S", 3, false), chk("M", 4, false), chk("L", 5, false), chk("XL", 4, false), chk("2XL", 2, false)] },
+      { name: "Certification", isCheck: true, options: [chk("DOT", 5, false), chk("ECE 22.06", 4, true), chk("SNELL M2020", 2, false)] },
+      { name: "Shell material", isCheck: true, options: [chk("Carbon fiber", 2, false), chk("Fiberglass composite", 2, false), chk("Polycarbonate", 1, false)] },
+      { name: "Weight", isRange: true, min: "1,190", max: "1,500", unit: "g" },
+      { name: "Pinlock included", isCheck: true, options: [chk("Yes", 4, false), chk("No", 1, false)] },
+      { name: "Price", isRange: true, min: "$399", max: "$999", unit: "USD" },
+      { name: "Brand", isCheck: true, options: [chk("AGV", 1, false), chk("Arai", 1, false), chk("Bell", 1, false), chk("HJC", 1, false), chk("Shoei", 1, false)] },
+    ];
+    const st = {
+      in: { c: "#58B380", b: "solid", t: "IN STOCK" },
+      low: { c: "#DFA23C", b: "solid", t: "LOW STOCK · 2 LEFT" },
+      sup: { c: "#6FA3DC", b: "solid", t: "SUPPLIER · 2–4 DAYS" },
+      out: { c: "#9BA3A8", b: "dashed", t: "OUT OF STOCK" },
+    };
+    const prod = (n, brand, sku, name, spec, price, s) => ({ n, brand, sku, name, spec, price, stock: st[s].t, stockColor: st[s].c, borderStyle: st[s].b });
+    const products = [
+      prod(1, "AGV", "AGV-K6S-MB", "K6 S", "Full face · 1,270 g · DOT · ECE 22.06", "$549.00", "in"),
+      prod(2, "SHOEI", "SHO-RF14-BK", "RF-1400", "Full face · 1,450 g · DOT · SNELL M2020", "$579.00", "in"),
+      prod(3, "HJC", "HJC-R12C", "RPHA 12 Carbon", "Full face · 1,400 g · DOT · ECE 22.06", "$499.00", "sup"),
+      prod(4, "ARAI", "ARA-CSX-WH", "Corsair-X", "Full face · 1,560 g · DOT · SNELL M2020", "$999.00", "low"),
+      prod(5, "BELL", "BEL-SRTM-BK", "SRT Modular", "Modular · 1,700 g · DOT · ECE 22.06", "$399.00", "out"),
+    ];
+    const specs = [
+      { n: "01", k: "System type", v: "Slip-on" },
+      { n: "02", k: "Material", v: "Titanium" },
+      { n: "03", k: "Finish", v: "Brushed titanium" },
+      { n: "04", k: "CARB compliant", v: "No — track use only in California" },
+      { n: "05", k: "Inlet diameter", v: "51 mm" },
+      { n: "06", k: "Weight", v: "2.4 kg" },
+    ];
+    const mode = this.props.detailStock ?? "in-stock";
+    const detail = {
+      "in-stock": { ...st.in, ship: "ORDER BY 2 PM ET — SHIPS TODAY", cta: "Add to cart", bg: "#E8622C", fg: "#16191D" },
+      "low-stock": { ...st.low, t: "LOW STOCK · 3 LEFT", ship: "ORDER BY 2 PM ET — SHIPS TODAY", cta: "Add to cart", bg: "#E8622C", fg: "#16191D" },
+      "supplier": { ...st.sup, t: "SHIPS FROM SUPPLIER · 2–4 DAYS", ship: "LEAVES SUPPLIER WAREHOUSE IN 2–4 DAYS", cta: "Add to cart", bg: "#E8622C", fg: "#16191D" },
+      "out-of-stock": { ...st.out, ship: "NO RESTOCK DATE YET", cta: "Email me when it’s back", bg: "#3A4148", fg: "#E8E6E0" },
+    }[mode];
+    const zero = this.props.zeroResults ?? false;
+    return {
+      sections, sections2, filterGroups, products, specs,
+      showGrid: !zero, showEmpty: zero,
+      qty: this.state.qty,
+      inc: () => this.setState(s => ({ qty: Math.min(s.qty + 1, 9) })),
+      dec: () => this.setState(s => ({ qty: Math.max(s.qty - 1, 1) })),
+      stockLabel: detail.t, stockColor: detail.c, stockBorderStyle: detail.b,
+      shipLine: detail.ship, ctaLabel: detail.cta, ctaBg: detail.bg, ctaColor: detail.fg,
+      isOut: mode === "out-of-stock",
+    };
+  }
+}
+</script>
+</body>
+</html>

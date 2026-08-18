@@ -1,10 +1,16 @@
 # Netlify deploy configuration.
-# Connect this repo in the Netlify UI; the Next.js runtime is picked up from
-# the plugin below. Set DATABASE_URL (and later the auth/payment secrets from
-# .env.example) in Site settings → Environment variables.
+#
+# 1. Netlify UI → Add new project → Import from GitHub → this repo.
+# 2. Provision a database: site → Extensions → Neon (Netlify DB). It injects
+#    NETLIFY_DATABASE_URL; the build maps it automatically, runs migrations,
+#    and seeds the catalog on first deploy.
+# 3. Set AUTH_SECRET (openssl rand -base64 32) plus ADMIN_EMAIL and
+#    ADMIN_INITIAL_PASSWORD under Site configuration → Environment variables.
+#    Payment/OAuth/email keys from .env.example activate their features when
+#    added.
 
 [build]
-  command = "npm run build"
+  command = "node scripts/netlify-build.mjs"
   publish = ".next"
 
 [build.environment]

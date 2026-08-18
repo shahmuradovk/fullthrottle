@@ -1,5 +1,6 @@
 "use server";
 
+import { appUrl } from "@/lib/app-url";
 import { randomBytes } from "node:crypto";
 import { AuthError } from "next-auth";
 import { z } from "zod";
@@ -20,12 +21,6 @@ async function limited(action: string, max: number): Promise<string | null> {
 }
 
 export type AuthFormState = { error: string } | null;
-
-function appUrl(): string {
-  return (
-    process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-  ).replace(/\/$/, "");
-}
 
 function safeCallback(raw: unknown): string {
   // Only relative paths — never an open redirect.

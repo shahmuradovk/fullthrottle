@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
 import { getAvailability } from "@/lib/supplier/availability";
 import { advertisedPriceCents } from "@/lib/pricing";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 // (engineering brief §11). Prices honour MAP: products whose price can't be
 // advertised are listed without one.
 export async function GET() {
-  const base = (process.env.AUTH_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = appUrl();
   const products = await prisma.product.findMany({
     where: { active: true },
     include: { brand: true, section: true },

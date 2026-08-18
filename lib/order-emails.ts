@@ -1,3 +1,4 @@
+import { appUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { formatMoney } from "@/lib/money";
@@ -53,6 +54,6 @@ export async function sendOrderEmail(orderId: string, status: OrderStatus): Prom
   await sendEmail({
     to,
     subject: subjectFor(order.number),
-    text: `Hi ${order.user.name},\n\n${statusLine[status] ?? ""}\n\nOrder ${order.number}\n${lines}\n\n  Subtotal ${formatMoney(order.subtotalCents)}\n  Shipping ${order.shippingCents === 0 ? "Free" : formatMoney(order.shippingCents)}\n  Tax ${formatMoney(order.taxCents)}\n  Total ${formatMoney(order.totalCents)}\n\nTrack it any time: ${(process.env.AUTH_URL ?? "http://localhost:3000").replace(/\/$/, "")}/account/orders/${order.id}\n\n— Fullthrottle, Reno NV`,
+    text: `Hi ${order.user.name},\n\n${statusLine[status] ?? ""}\n\nOrder ${order.number}\n${lines}\n\n  Subtotal ${formatMoney(order.subtotalCents)}\n  Shipping ${order.shippingCents === 0 ? "Free" : formatMoney(order.shippingCents)}\n  Tax ${formatMoney(order.taxCents)}\n  Total ${formatMoney(order.totalCents)}\n\nTrack it any time: ${appUrl()}/account/orders/${order.id}\n\n— Fullthrottle, Reno NV`,
   });
 }

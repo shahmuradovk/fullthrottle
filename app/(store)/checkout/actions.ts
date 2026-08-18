@@ -1,5 +1,6 @@
 "use server";
 
+import { appUrl } from "@/lib/app-url";
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -43,12 +44,6 @@ const addressSchema = z.object({
   method: z.enum(["CARD", "PAYPAL"]),
   saveAddress: z.boolean(),
 });
-
-function appUrl(): string {
-  return (
-    process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-  ).replace(/\/$/, "");
-}
 
 export async function prepareCheckoutAction(
   _prev: PrepareResult,

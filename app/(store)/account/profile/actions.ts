@@ -1,5 +1,6 @@
 "use server";
 
+import { appUrl } from "@/lib/app-url";
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -86,9 +87,7 @@ export async function resendVerificationAction(): Promise<void> {
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     },
   });
-  const base = (
-    process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000"
-  ).replace(/\/$/, "");
+  const base = appUrl();
   await sendEmail({
     to: user.email,
     subject: "Confirm your email — Fullthrottle",

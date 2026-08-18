@@ -98,11 +98,17 @@ export function AuthCard({
       <p className="text-center text-sm text-ink">
         {mode === "register" ? (
           <>
-            Already have one? <Link href={switchHref}>Sign in</Link>
+            Already have one?{" "}
+            <Link href={switchHref} className="underline underline-offset-[3px]">
+              Sign in
+            </Link>
           </>
         ) : (
           <>
-            New here? <Link href={switchHref}>Create an account</Link>
+            New here?{" "}
+            <Link href={switchHref} className="underline underline-offset-[3px]">
+              Create an account
+            </Link>
           </>
         )}
       </p>

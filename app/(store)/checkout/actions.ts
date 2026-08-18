@@ -17,6 +17,7 @@ import {
 } from "@/lib/payments/stripe";
 import { createPaypalOrder, paypalConfigured } from "@/lib/payments/paypal";
 import { US_STATES } from "@/lib/us-states";
+import { rateLimit, RateLimitError } from "@/lib/rate-limit";
 
 export type PrepareResult =
   | { error: string }
@@ -54,6 +55,14 @@ export async function prepareCheckoutAction(
   formData: FormData
 ): Promise<PrepareResult> {
   const user = await requireUser("/checkout");
+
+  // Card-testing bursts get blocked, not just logged (brief §10).
+  try {
+    await rateLimit({ key: `checkout:${user.id}`, max: 10, windowSeconds: 600 });
+  } catch (e) {
+    if (e instanceof RateLimitError) return { error: e.message };
+    throw e;
+  }
   const cart = await readCart();
   if (!cart || cart.items.length === 0) redirect("/cart");
 

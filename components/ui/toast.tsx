@@ -24,7 +24,7 @@ export function Toast({
         (action.href ? (
           <a
             href={action.href}
-            className="text-sm font-semibold !text-[#B8481F] hover:underline"
+            className="text-sm font-semibold !text-[#9C3A12] underline underline-offset-[3px]"
           >
             {action.label}
           </a>
@@ -32,7 +32,7 @@ export function Toast({
           <button
             type="button"
             onClick={action.onClick}
-            className="cursor-pointer text-sm font-semibold text-[#B8481F] hover:underline"
+            className="cursor-pointer text-sm font-semibold text-[#9C3A12] hover:underline"
           >
             {action.label}
           </button>

@@ -7,6 +7,17 @@ import { hash as argonHash } from "@node-rs/argon2";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { signIn } from "@/auth";
+import { clientIp, rateLimit, RateLimitError } from "@/lib/rate-limit";
+
+async function limited(action: string, max: number): Promise<string | null> {
+  try {
+    await rateLimit({ key: `${action}:${await clientIp()}`, max, windowSeconds: 600 });
+    return null;
+  } catch (e) {
+    if (e instanceof RateLimitError) return e.message;
+    throw e;
+  }
+}
 
 export type AuthFormState = { error: string } | null;
 
@@ -31,6 +42,9 @@ export async function registerAction(
   _prev: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const limitError = await limited("register", 10);
+  if (limitError) return { error: limitError };
+
   const parsed = registerSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -85,6 +99,9 @@ export async function signInAction(
   _prev: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  const limitError = await limited("signin", 15);
+  if (limitError) return { error: limitError };
+
   const parsed = signInSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),

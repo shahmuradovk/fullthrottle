@@ -5,6 +5,7 @@ import { z } from "zod";
 import { verify as argonVerify } from "@node-rs/argon2";
 import { generateSecret, verify as totpVerify } from "otplib";
 import { prisma } from "@/lib/db";
+import { clientIp, rateLimit, RateLimitError } from "@/lib/rate-limit";
 import {
   createAdminSession,
   destroyAdminSession,
@@ -24,6 +25,17 @@ export async function adminSignInAction(
   _prev: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  try {
+    await rateLimit({
+      key: `admin-signin:${await clientIp()}`,
+      max: 8,
+      windowSeconds: 600,
+    });
+  } catch (e) {
+    if (e instanceof RateLimitError) return { error: e.message };
+    throw e;
+  }
+
   const parsed = credentialsSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),

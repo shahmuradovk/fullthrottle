@@ -20,6 +20,22 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 
 export class OrderTransitionError extends Error {}
 
+// Pure rule check — unit-testable without a database.
+export function assertTransition(
+  from: OrderStatus,
+  to: OrderStatus,
+  extras: { carrier?: string; trackingNumber?: string } = {}
+): void {
+  if (!TRANSITIONS[from].includes(to)) {
+    throw new OrderTransitionError(`An order can't move from ${from} to ${to}.`);
+  }
+  if (to === "SHIPPED") {
+    if (!extras.carrier?.trim() || !extras.trackingNumber?.trim()) {
+      throw new OrderTransitionError("Enter a tracking number before marking this shipped.");
+    }
+  }
+}
+
 export type ShipTo = {
   name: string;
   line1: string;
@@ -166,16 +182,10 @@ export async function transitionOrder(params: {
 }): Promise<Order> {
   const order = await prisma.order.findUniqueOrThrow({ where: { id: params.orderId } });
 
-  if (!TRANSITIONS[order.status].includes(params.next)) {
-    throw new OrderTransitionError(
-      `An order can't move from ${order.status} to ${params.next}.`
-    );
-  }
-  if (params.next === "SHIPPED") {
-    if (!params.carrier?.trim() || !params.trackingNumber?.trim()) {
-      throw new OrderTransitionError("Enter a tracking number before marking this shipped.");
-    }
-  }
+  assertTransition(order.status, params.next, {
+    carrier: params.carrier,
+    trackingNumber: params.trackingNumber,
+  });
 
   const updated = await prisma.$transaction(async (tx) => {
     const result = await tx.order.update({

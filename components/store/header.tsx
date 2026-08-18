@@ -11,7 +11,9 @@ export function StoreHeader({
   cartCount: number;
   userName?: string | null;
 }) {
+  const links = sections.map((s) => ({ name: s.name, href: `/${s.slug}` }));
   return (
+    <>
     <header className="flex h-16 items-center gap-7 border-b border-line bg-surface px-5 md:px-10">
       <Link
         href="/"
@@ -20,11 +22,9 @@ export function StoreHeader({
         FULLTHROTTLE
       </Link>
       <div className="hidden md:block">
-        <NavLinks
-          links={sections.map((s) => ({ name: s.name, href: `/${s.slug}` }))}
-        />
+        <NavLinks links={links} />
       </div>
-      <form action="/search" className="ml-auto hidden max-w-[380px] flex-1 lg:block">
+      <form action="/search" className="ml-auto hidden min-w-32 max-w-[380px] flex-1 md:block">
         <label htmlFor="site-search" className="sr-only">
           Search part number or name
         </label>
@@ -41,7 +41,7 @@ export function StoreHeader({
           />
         </div>
       </form>
-      <div className="ml-auto flex items-center gap-5 lg:ml-0">
+      <div className="ml-auto flex items-center gap-5 md:ml-0">
         <Link
           href={userName ? "/account" : "/sign-in"}
           className="text-[15px] font-medium !text-ink !no-underline hover:!text-ink-secondary"
@@ -56,5 +56,10 @@ export function StoreHeader({
         </Link>
       </div>
     </header>
+    {/* Mobile: sections + search ride a scrollable row under the header */}
+    <div className="border-b border-line bg-surface px-5 md:hidden">
+      <NavLinks links={[...links, { name: "⌕ Search", href: "/search" }]} compact />
+    </div>
+    </>
   );
 }

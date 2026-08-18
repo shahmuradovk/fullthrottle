@@ -293,6 +293,25 @@ model OrderEvent {
   createdAt DateTime    @default(now())
 }
 
+// Webhook idempotency — handlers key on the provider event id and return 200
+// on replays (engineering brief §7).
+model ProcessedWebhook {
+  provider    String
+  eventId     String
+  processedAt DateTime @default(now())
+
+  @@id([provider, eventId])
+}
+
+// Postgres-backed fixed-window rate limiting (engineering brief §1, §10).
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@id([key, windowStart])
+}
+
 // ── Supplier seam (built now, connected later) ───────────────────────────────
 
 model Supplier {

@@ -6,6 +6,7 @@ import { buildTimeline } from "@/lib/order-timeline";
 import { Timeline } from "@/components/ui/timeline";
 import { statusColor } from "@/components/admin/status-colors";
 import type { ShipTo } from "@/lib/orders";
+import { productArt } from "@/lib/product-art";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,14 @@ export default async function OrderTrackingPage({
     include: { items: true, events: { orderBy: { createdAt: "asc" } } },
   });
   if (!order || order.userId !== user.id) notFound();
+
+  // Order items are immutable snapshots — the live product is only consulted
+  // for its illustration, and may legitimately be gone.
+  const liveProducts = await prisma.product.findMany({
+    where: { id: { in: order.items.map((i) => i.productId) } },
+    select: { id: true, slug: true },
+  });
+  const slugById = Object.fromEntries(liveProducts.map((p) => [p.id, p.slug]));
 
   const shipTo = order.shipTo as unknown as ShipTo;
   const itemCount = order.items.reduce((s, i) => s + i.qty, 0);
@@ -92,7 +101,19 @@ export default async function OrderTrackingPage({
               key={i.id}
               className="flex items-center gap-3.5 border-b border-line px-5 py-4"
             >
-              <div className="img-placeholder h-14 w-[70px] shrink-0 rounded-1 border border-line" />
+              {(() => {
+                const art = slugById[i.productId]
+                  ? productArt(slugById[i.productId])
+                  : null;
+                return art ? (
+                  <div className="flex h-14 w-[70px] shrink-0 items-center justify-center rounded-1 border border-line bg-well-deep">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={art} alt="" className="h-full w-full object-contain p-1" />
+                  </div>
+                ) : (
+                  <div className="img-placeholder h-14 w-[70px] shrink-0 rounded-1 border border-line" />
+                );
+              })()}
               <div className="flex-1">
                 <p className="text-[15px] font-semibold text-ink">
                   {i.brandName} {i.name}

@@ -9,6 +9,7 @@ import { SpecTable } from "@/components/ui/spec-table";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { Callout } from "@/components/ui/callout";
 import { BuyBox } from "@/components/catalog/buy-box";
+import { productArt } from "@/lib/product-art";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
   const defs = product.section.attributes.map(toAttributeDef);
   const values = productValues(product);
+  const art = productArt(product.slug);
   const availability = getAvailability(product);
   const advertised = advertisedPriceCents(product);
 
@@ -95,14 +97,25 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
       <div className="grid items-start gap-10 lg:grid-cols-[1fr_480px] lg:gap-12">
         <div>
-          <div className="img-placeholder relative flex h-[320px] items-center justify-center rounded-1 border border-line md:h-[520px]">
-            <span className="absolute left-4 top-4 flex items-center gap-2">
+          <div
+            className={`relative flex h-[320px] items-center justify-center rounded-1 border border-line md:h-[520px] ${art ? "bg-well-deep" : "img-placeholder"}`}
+          >
+            <span className="absolute left-4 top-4 z-10 flex items-center gap-2">
               <Callout n={1} className="bg-surface" />
               <span aria-hidden className="h-[1.5px] w-6 bg-accent" />
             </span>
-            <span className="font-mono text-xs text-ink-secondary">
-              {product.images[0]?.alt ?? "product photo"}
-            </span>
+            {art ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={art}
+                alt={`${product.brand.name} ${product.name}`}
+                className="h-full w-full object-contain p-6 md:p-10"
+              />
+            ) : (
+              <span className="font-mono text-xs text-ink-secondary">
+                {product.images[0]?.alt ?? "product photo"}
+              </span>
+            )}
           </div>
 
           {product.description && (

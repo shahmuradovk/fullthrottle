@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Yoshimura Alpha T street slip-on, black stainless sleeve with removable baffle">
+  <defs>
+    <linearGradient id="blk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A4148"/>
+      <stop offset="0.4" stop-color="#23282F"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+    <linearGradient id="steel6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B7BDC2"/>
+      <stop offset="1" stop-color="#6E7681"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(-10 400 300)">
+    <!-- stainless link pipe -->
+    <path d="M85 335 C140 326 190 320 240 316 L246 358 C194 362 142 368 92 376 Z" fill="url(#steel6)" stroke="#5A6167" stroke-width="5"/>
+    <rect x="234" y="304" width="32" height="64" rx="8" fill="#5A6167" stroke="#3A4148" stroke-width="4"/>
+    <!-- black tapered sleeve -->
+    <path d="M266 300 L580 282 C614 282 636 296 640 320 L640 330 C640 354 618 368 584 370 L270 364 C260 342 260 320 266 300 Z"
+          fill="url(#blk)" stroke="#101316" stroke-width="5"/>
+    <!-- sleeve highlight -->
+    <path d="M280 306 L600 290" stroke="#E8E6E0" stroke-opacity="0.22" stroke-width="4" stroke-linecap="round"/>
+    <!-- stainless end cap with removable baffle -->
+    <path d="M580 282 C616 282 640 300 640 326 C640 350 618 368 584 370 L600 372 C644 368 668 348 666 324 C664 300 640 282 602 280 Z" fill="url(#steel6)" stroke="#5A6167" stroke-width="4"/>
+    <!-- removable baffle (protruding, bolt visible) -->
+    <ellipse cx="660" cy="326" rx="14" ry="20" fill="#101316" stroke="#5A6167" stroke-width="4"/>
+    <circle cx="660" cy="298" r="5" fill="#DFA23C"/>
+    <!-- band clamp + bracket -->
+    <path d="M420 270 L452 270 L456 384 L424 384 Z" fill="#3A4148" stroke="#101316" stroke-width="4"/>
+    <circle cx="438" cy="256" r="10" fill="none" stroke="#9BA3A8" stroke-width="5"/>
+    <!-- CARB sticker mark -->
+    <rect x="300" y="318" width="70" height="26" rx="4" fill="#16191D" stroke="#3A4148" stroke-width="3"/>
+    <path d="M310 331 L360 331" stroke="#58B380" stroke-width="4" stroke-linecap="round"/>
+    <!-- spring clips -->
+    <path d="M252 316 L284 306 M252 356 L286 364" stroke="#DFA23C" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

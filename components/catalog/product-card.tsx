@@ -5,6 +5,7 @@ import { formatAttributeValue } from "@/lib/attributes/format";
 import { productValues } from "@/lib/catalog";
 import { getAvailability } from "@/lib/supplier/availability";
 import { advertisedPriceCents } from "@/lib/pricing";
+import { productArt } from "@/lib/product-art";
 import { formatMoney } from "@/lib/money";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { Callout } from "@/components/ui/callout";
@@ -21,6 +22,7 @@ export function ProductCard({
   calloutN: number;
 }) {
   const values = productValues(product);
+  const art = productArt(product.slug);
   const specLine = attributes
     .filter((a) => a.filterable)
     .sort((a, b) => a.position - b.position)
@@ -36,9 +38,20 @@ export function ProductCard({
       href={`/product/${product.slug}`}
       className="block overflow-hidden rounded-1 border border-line bg-surface !text-ink !no-underline transition-[border-color] duration-(--dur-fast) hover:border-ink"
     >
-      <div className="img-placeholder relative flex h-[180px] items-center justify-center">
-        <Callout n={calloutN} className="absolute left-3 top-3 bg-surface" />
-        <span className="font-mono text-[11px] text-ink-secondary">product photo</span>
+      <div
+        className={`relative flex h-[180px] items-center justify-center ${art ? "bg-well-deep" : "img-placeholder"}`}
+      >
+        <Callout n={calloutN} className="absolute left-3 top-3 z-10 bg-surface" />
+        {art ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={art}
+            alt={`${product.brand.name} ${product.name}`}
+            className="h-full w-full object-contain p-2"
+          />
+        ) : (
+          <span className="font-mono text-[11px] text-ink-secondary">product photo</span>
+        )}
       </div>
       <div className="flex flex-col gap-1.5 p-4">
         <p className="type-label text-ink-secondary">

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSections } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { SECTION_ART } from "@/lib/product-art";
 
 export const dynamic = "force-dynamic";
 
@@ -64,10 +65,21 @@ export default async function HomePage() {
               href={`/${s.slug}`}
               className="block overflow-hidden rounded-1 border border-line bg-surface !text-ink !no-underline transition-[border-color] duration-(--dur-fast) hover:border-ink"
             >
-              <div className="img-placeholder flex h-40 items-center justify-center">
-                <span className="font-mono text-[11px] text-ink-secondary">
-                  section photo
-                </span>
+              <div
+                className={`flex h-40 items-center justify-center ${SECTION_ART[s.slug] ? "bg-well-deep" : "img-placeholder"}`}
+              >
+                {SECTION_ART[s.slug] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={SECTION_ART[s.slug]}
+                    alt=""
+                    className="h-full w-full object-contain p-2"
+                  />
+                ) : (
+                  <span className="font-mono text-[11px] text-ink-secondary">
+                    section photo
+                  </span>
+                )}
               </div>
               <div className="flex flex-col gap-1 p-4">
                 <div className="flex items-baseline justify-between">

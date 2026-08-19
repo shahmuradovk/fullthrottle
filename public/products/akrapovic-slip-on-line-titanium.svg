@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Akrapovič Slip-On Line titanium muffler with carbon end cap and heat-tinted link pipe">
+  <defs>
+    <linearGradient id="ti" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C8CDD2"/>
+      <stop offset="0.35" stop-color="#9BA3A8"/>
+      <stop offset="0.7" stop-color="#7C848B"/>
+      <stop offset="1" stop-color="#5A6167"/>
+    </linearGradient>
+    <linearGradient id="tint" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#DFA23C"/>
+      <stop offset="0.45" stop-color="#B06AC8"/>
+      <stop offset="1" stop-color="#6FA3DC"/>
+    </linearGradient>
+    <pattern id="weave2" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="20" height="20" fill="#1B2026"/>
+      <rect width="10" height="10" fill="#242B33"/>
+      <rect x="10" y="10" width="10" height="10" fill="#242B33"/>
+    </pattern>
+  </defs>
+  <g transform="rotate(-12 400 300)">
+    <!-- heat-tinted link pipe -->
+    <path d="M80 330 C130 322 180 316 235 312 L240 352 C186 356 136 362 88 370 Z" fill="url(#tint)" stroke="#5A6167" stroke-width="5"/>
+    <!-- inlet clamp -->
+    <rect x="228" y="300" width="34" height="62" rx="8" fill="#5A6167" stroke="#3A4148" stroke-width="4"/>
+    <!-- titanium canister (hexagonal profile) -->
+    <path d="M262 296 L560 272 C596 270 622 284 626 310 L628 330 C630 356 608 374 572 378 L268 366 C258 344 256 318 262 296 Z"
+          fill="url(#ti)" stroke="#5A6167" stroke-width="5"/>
+    <!-- brushed texture lines -->
+    <g stroke="#E8E6E0" stroke-opacity="0.25" stroke-width="2">
+      <path d="M280 306 L600 284"/><path d="M282 326 L610 306"/><path d="M280 348 L606 330"/>
+    </g>
+    <!-- rivet bands -->
+    <g fill="#3A4148"><circle cx="300" cy="298" r="4"/><circle cx="300" cy="360" r="4"/><circle cx="540" cy="280" r="4"/><circle cx="546" cy="370" r="4"/></g>
+    <!-- carbon end cap -->
+    <path d="M560 272 C600 270 626 288 628 318 C630 348 608 372 572 378 L588 378 C640 372 668 344 664 314 C660 286 630 268 588 268 Z" fill="url(#weave2)" stroke="#101316" stroke-width="4"/>
+    <path d="M626 292 C654 296 668 308 666 322 C664 340 646 354 618 358 L612 340 C632 336 644 328 644 318 C644 308 636 298 620 296 Z" fill="url(#weave2)" stroke="#101316" stroke-width="4"/>
+    <!-- outlet -->
+    <ellipse cx="654" cy="322" rx="16" ry="22" fill="#101316" stroke="#3A4148" stroke-width="4"/>
+    <!-- carbon mounting strap -->
+    <path d="M410 258 L442 258 L446 392 L414 392 Z" fill="url(#weave2)" stroke="#101316" stroke-width="4"/>
+    <!-- spring clips at inlet -->
+    <path d="M248 312 L280 300 M248 352 L282 362" stroke="#DFA23C" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

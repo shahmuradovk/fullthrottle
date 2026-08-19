@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="SC-Project S1-GP stubby carbon race canister with titanium link pipe">
+  <defs>
+    <pattern id="weave3" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="22" height="22" fill="#1B2026"/>
+      <rect width="11" height="11" fill="#262E37"/>
+      <rect x="11" y="11" width="11" height="11" fill="#262E37"/>
+    </pattern>
+    <linearGradient id="ti8" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9BA3A8"/>
+      <stop offset="0.6" stop-color="#C8CDD2"/>
+      <stop offset="1" stop-color="#DFA23C" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(-14 400 300)">
+    <!-- long titanium link pipe (race, no cat) -->
+    <path d="M70 340 C160 326 250 316 330 312 L336 356 C252 360 164 370 78 382 Z" fill="url(#ti8)" stroke="#5A6167" stroke-width="5"/>
+    <!-- weld beads -->
+    <g stroke="#6FA3DC" stroke-width="4" stroke-dasharray="4 6"><path d="M170 322 L174 366"/><path d="M250 316 L254 360"/></g>
+    <!-- stubby GP carbon canister -->
+    <path d="M336 300 L560 286 C596 286 620 302 622 328 L622 336 C622 362 598 378 562 380 L340 372 C328 350 328 322 336 300 Z"
+          fill="url(#weave3)" stroke="#101316" stroke-width="5"/>
+    <!-- carbon sheen -->
+    <path d="M340 304 L600 292 L602 304 L342 318 Z" fill="#E8E6E0" opacity="0.12"/>
+    <!-- titanium end cap, angled GP style -->
+    <path d="M560 286 C598 286 622 306 622 332 C622 358 598 378 562 380 L596 384 C640 376 660 350 656 326 C652 300 626 284 588 282 Z"
+          fill="url(#ti8)" stroke="#5A6167" stroke-width="4"/>
+    <ellipse cx="644" cy="332" rx="15" ry="21" fill="#101316" stroke="#3A4148" stroke-width="4"/>
+    <!-- race number plate hint -->
+    <rect x="400" y="316" width="64" height="34" rx="4" fill="#16191D" stroke="#3A4148" stroke-width="3"/>
+    <path d="M414 333 L450 333" stroke="#E8622C" stroke-width="5" stroke-linecap="round"/>
+    <!-- carbon bracket -->
+    <path d="M480 272 L512 272 L516 394 L484 394 Z" fill="url(#weave3)" stroke="#101316" stroke-width="4"/>
+    <!-- springs -->
+    <path d="M344 314 L376 304 M344 358 L378 366" stroke="#E8622C" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

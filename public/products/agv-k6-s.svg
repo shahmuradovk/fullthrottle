@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="AGV K6 S full-face helmet, matte black">
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E353D"/>
+      <stop offset="0.55" stop-color="#23282F"/>
+      <stop offset="1" stop-color="#181C21"/>
+    </linearGradient>
+    <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6FA3DC" stop-opacity="0.55"/>
+      <stop offset="0.5" stop-color="#1C2228" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <!-- full-face shell, side profile facing left -->
+  <path d="M245 175 C300 105 420 85 505 110 C600 138 655 215 660 300 C664 372 640 440 585 470 L575 472 C570 445 560 430 540 428 L300 428 C260 428 235 400 225 355 C213 300 216 222 245 175 Z"
+        fill="url(#shell)" stroke="#3A4148" stroke-width="6"/>
+  <!-- chin bar -->
+  <path d="M225 355 C230 402 262 428 302 428 L410 428 C400 390 370 360 330 348 L240 330 C230 336 224 344 225 355 Z"
+        fill="#181C21" stroke="#3A4148" stroke-width="5"/>
+  <!-- visor opening -->
+  <path d="M255 205 C310 165 400 152 470 168 C520 180 552 208 560 245 C566 275 552 300 520 306 L340 306 C300 306 268 280 255 245 Z"
+        fill="url(#visor)" stroke="#101316" stroke-width="6"/>
+  <!-- visor pivot -->
+  <circle cx="560" cy="290" r="26" fill="#23282F" stroke="#3A4148" stroke-width="5"/>
+  <circle cx="560" cy="290" r="9" fill="#9BA3A8"/>
+  <!-- crown vents (5 intakes) -->
+  <path d="M330 118 L370 106 L378 124 L338 136 Z" fill="#101316" stroke="#3A4148" stroke-width="3"/>
+  <path d="M400 100 L440 96 L444 116 L404 120 Z" fill="#101316" stroke="#3A4148" stroke-width="3"/>
+  <!-- chin vent -->
+  <rect x="268" y="368" width="58" height="18" rx="6" fill="#101316" stroke="#3A4148" stroke-width="3"/>
+  <!-- rear extractor -->
+  <path d="M618 350 C640 345 652 330 655 312 L640 306 C632 326 622 338 606 344 Z" fill="#101316" stroke="#3A4148" stroke-width="3"/>
+  <!-- shell seam highlight -->
+  <path d="M270 180 C330 122 440 102 520 128" fill="none" stroke="#E8E6E0" stroke-opacity="0.18" stroke-width="7" stroke-linecap="round"/>
+  <!-- base gasket -->
+  <path d="M300 430 L540 430 C558 430 570 444 574 470 L560 476 C520 452 340 452 302 476 L288 468 C288 448 292 434 300 430 Z" fill="#101316"/>
+</svg>

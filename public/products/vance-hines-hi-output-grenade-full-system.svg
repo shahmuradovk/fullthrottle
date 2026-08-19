@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Vance and Hines Hi-Output Grenade full exhaust system with header pipe and heat shields">
+  <defs>
+    <linearGradient id="steel7" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C4C9CE"/>
+      <stop offset="0.5" stop-color="#8F979E"/>
+      <stop offset="1" stop-color="#5A6167"/>
+    </linearGradient>
+    <linearGradient id="blk7" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33393F"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <!-- full header-back system: downpipe sweeping into grenade muffler -->
+  <!-- header pipe from top-left (exhaust port) sweeping down and right -->
+  <path d="M120 90 C110 150 118 210 155 260 C195 312 260 340 330 348 L336 310 C276 302 224 278 192 236 C162 196 156 148 164 96 Z"
+        fill="url(#steel7)" stroke="#5A6167" stroke-width="5"/>
+  <!-- port flange -->
+  <rect x="106" y="70" width="70" height="30" rx="8" fill="#5A6167" stroke="#3A4148" stroke-width="4"/>
+  <circle cx="120" cy="85" r="5" fill="#101316"/><circle cx="162" cy="85" r="5" fill="#101316"/>
+  <!-- heat shield over header -->
+  <path d="M150 130 C148 178 162 224 196 258 L220 240 C192 210 180 172 182 132 Z" fill="url(#blk7)" stroke="#101316" stroke-width="4"/>
+  <g stroke="#3A4148" stroke-width="3"><path d="M160 150 L196 146"/><path d="M164 186 L202 180"/><path d="M176 220 L212 210"/></g>
+  <!-- O2 sensor bung -->
+  <circle cx="238" cy="290" r="12" fill="#5A6167" stroke="#3A4148" stroke-width="4"/>
+  <path d="M238 278 L238 258" stroke="#3A4148" stroke-width="5" stroke-linecap="round"/>
+  <!-- grenade muffler (stout cylinder with domed billet end) -->
+  <g transform="rotate(-8 480 340)">
+    <path d="M330 312 L610 296 C646 296 670 312 672 338 L672 346 C672 372 648 388 612 390 L334 380 C324 358 324 332 330 312 Z"
+          fill="url(#steel7)" stroke="#5A6167" stroke-width="5"/>
+    <g stroke="#E8E6E0" stroke-opacity="0.25" stroke-width="2">
+      <path d="M348 322 L640 306"/><path d="M350 344 L650 330"/><path d="M348 366 L644 354"/>
+    </g>
+    <!-- grenade-style ribbed billet end cap -->
+    <path d="M610 296 C650 296 674 316 674 342 C674 366 650 388 614 390 L632 392 C676 386 700 362 698 340 C696 314 668 294 628 292 Z" fill="url(#blk7)" stroke="#101316" stroke-width="4"/>
+    <g stroke="#3A4148" stroke-width="4"><path d="M660 306 L676 322"/><path d="M668 330 L688 340"/><path d="M666 356 L684 362"/></g>
+    <ellipse cx="686" cy="344" rx="12" ry="18" fill="#101316" stroke="#3A4148" stroke-width="4"/>
+    <!-- twin band clamps -->
+    <path d="M380 288 L410 288 L414 402 L384 402 Z" fill="#33393F" stroke="#101316" stroke-width="4"/>
+    <path d="M520 282 L550 282 L554 400 L524 400 Z" fill="#33393F" stroke="#101316" stroke-width="4"/>
+  </g>
+</svg>

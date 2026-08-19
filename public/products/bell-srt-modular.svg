@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Bell SRT Modular helmet with raised flip-up chin bar">
+  <defs>
+    <linearGradient id="shell5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B323A"/>
+      <stop offset="0.5" stop-color="#20262C"/>
+      <stop offset="1" stop-color="#15191E"/>
+    </linearGradient>
+    <linearGradient id="visor5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6FA3DC" stop-opacity="0.45"/>
+      <stop offset="0.55" stop-color="#1C2228" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <!-- main shell (jet section) -->
+  <path d="M258 200 C310 122 420 98 502 120 C592 146 645 218 650 300 C654 370 632 436 580 464 L570 466 C566 442 556 428 536 426 L318 426 C278 426 250 398 240 354 C230 302 234 240 258 200 Z"
+        fill="url(#shell5)" stroke="#3A4148" stroke-width="6"/>
+  <!-- flip-up chin bar, RAISED above the crown -->
+  <path d="M300 128 C258 92 250 46 286 26 C320 8 380 4 440 14 C500 24 540 48 546 78 C550 100 536 116 508 120 C452 96 372 96 316 132 Z"
+        fill="url(#shell5)" stroke="#3A4148" stroke-width="6"/>
+  <!-- chin vent on raised bar -->
+  <rect x="330" y="38" width="60" height="16" rx="6" fill="#101316" stroke="#3A4148" stroke-width="3" transform="rotate(-8 360 46)"/>
+  <!-- pivot hinge -->
+  <circle cx="540" cy="290" r="30" fill="#23282F" stroke="#3A4148" stroke-width="6"/>
+  <circle cx="540" cy="290" r="11" fill="#E8622C"/>
+  <path d="M540 260 C548 200 560 150 540 108" fill="none" stroke="#3A4148" stroke-width="6" stroke-dasharray="10 8"/>
+  <!-- main visor -->
+  <path d="M266 222 C318 180 402 166 468 182 C516 194 546 220 554 254 C560 284 546 306 516 312 L350 312 C310 312 278 290 266 256 Z"
+        fill="url(#visor5)" stroke="#101316" stroke-width="6"/>
+  <!-- internal sun shade peeking -->
+  <path d="M280 226 C330 192 400 180 458 190 L452 206 C400 198 340 208 296 236 Z" fill="#DFA23C" opacity="0.55"/>
+  <!-- open jaw area -->
+  <path d="M240 354 C246 400 280 426 320 426 L400 426 C390 380 350 348 300 340 L252 334 C244 340 238 346 240 354 Z"
+        fill="#15191E" stroke="#3A4148" stroke-width="5"/>
+  <!-- base gasket -->
+  <path d="M318 428 L536 428 C554 428 566 442 570 466 L556 472 C518 450 356 450 320 472 L306 464 C306 446 310 432 318 428 Z" fill="#101316"/>
+</svg>

@@ -6,6 +6,7 @@ import { getAvailability } from "@/lib/supplier/availability";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { removeFromCartAction, setCartQtyAction } from "./actions";
+import { productArt } from "@/lib/product-art";
 
 export const dynamic = "force-dynamic";
 
@@ -63,8 +64,19 @@ export default async function CartPage() {
                 key={item.id}
                 className="flex flex-wrap items-center gap-4 border-b border-line p-5"
               >
-                <div className="img-placeholder flex h-[90px] w-[110px] shrink-0 items-center justify-center rounded-1 border border-line">
-                  <span className="font-mono text-[10px] text-ink-secondary">photo</span>
+                <div
+                  className={`flex h-[90px] w-[110px] shrink-0 items-center justify-center rounded-1 border border-line ${productArt(item.product.slug) ? "bg-well-deep" : "img-placeholder"}`}
+                >
+                  {productArt(item.product.slug) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={productArt(item.product.slug)!}
+                      alt=""
+                      className="h-full w-full object-contain p-1"
+                    />
+                  ) : (
+                    <span className="font-mono text-[10px] text-ink-secondary">photo</span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1 basis-48">
                   <p className="type-label text-ink-secondary">{item.product.sku}</p>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Arai Corsair-X full-face helmet, white round shell">
+  <defs>
+    <linearGradient id="shell4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2F0EA"/>
+      <stop offset="0.6" stop-color="#DEDBD2"/>
+      <stop offset="1" stop-color="#B9B6AC"/>
+    </linearGradient>
+    <linearGradient id="visor4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6FA3DC" stop-opacity="0.5"/>
+      <stop offset="0.5" stop-color="#1C2228" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#101316"/>
+    </linearGradient>
+  </defs>
+  <!-- round R75 shell -->
+  <path d="M255 190 C305 112 420 88 505 112 C598 140 652 215 656 298 C660 370 636 438 582 468 L572 470 C568 444 558 430 538 428 L305 428 C266 428 240 402 230 358 C220 304 226 232 255 190 Z"
+        fill="url(#shell4)" stroke="#9BA3A8" stroke-width="6"/>
+  <!-- red accent stripe -->
+  <path d="M255 190 C300 120 400 96 480 106 L484 130 C410 122 322 146 276 208 Z" fill="#E8622C" opacity="0.9"/>
+  <!-- visor -->
+  <path d="M262 214 C316 172 402 158 470 174 C520 186 550 214 558 250 C564 280 550 304 518 310 L344 310 C304 310 272 286 262 250 Z"
+        fill="url(#visor4)" stroke="#101316" stroke-width="6"/>
+  <!-- signature side pod / pivot cover -->
+  <ellipse cx="556" cy="292" rx="34" ry="28" fill="#DEDBD2" stroke="#9BA3A8" stroke-width="5"/>
+  <circle cx="556" cy="292" r="9" fill="#3A4148"/>
+  <!-- chin bar -->
+  <path d="M230 358 C236 404 268 428 306 428 L412 428 C402 390 372 362 332 350 L244 332 C234 338 228 348 230 358 Z"
+        fill="#DEDBD2" stroke="#9BA3A8" stroke-width="5"/>
+  <rect x="272" y="368" width="54" height="18" rx="6" fill="#8A9196" stroke="#9BA3A8" stroke-width="3"/>
+  <!-- rear diffuser -->
+  <path d="M600 150 C640 180 660 230 662 280 L644 282 C640 236 622 196 588 168 Z" fill="#B9B6AC" stroke="#9BA3A8" stroke-width="4"/>
+  <!-- crown vent -->
+  <path d="M356 106 L400 96 L407 114 L364 124 Z" fill="#8A9196" stroke="#9BA3A8" stroke-width="3"/>
+  <!-- base gasket -->
+  <path d="M306 430 L538 430 C556 430 568 444 572 470 L558 476 C518 452 344 452 308 476 L294 468 C294 448 298 434 306 430 Z" fill="#101316"/>
+</svg>

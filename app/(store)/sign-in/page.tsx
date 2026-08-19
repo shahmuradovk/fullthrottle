@@ -20,6 +20,9 @@ export default async function SignInPage({
   return (
     <main className="flex justify-center px-5 py-16">
       <AuthCard
+        // Remount on mode switch so an error from one mode never lingers
+        // under the other one's heading.
+        key={mode === "signin" ? "signin" : "register"}
         mode={mode === "signin" ? "signin" : "register"}
         callbackUrl={safeCallback}
         providers={oauthProviders}

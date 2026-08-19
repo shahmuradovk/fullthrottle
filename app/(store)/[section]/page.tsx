@@ -26,7 +26,6 @@ import { Button } from "@/components/ui/button";
 import type { ActiveChip, SidebarGroup } from "@/components/catalog/filter-types";
 import type { Brand } from "@prisma/client";
 
-export const dynamic = "force-dynamic";
 
 type Params = { section: string };
 type SearchParams = Record<string, string | string[] | undefined>;

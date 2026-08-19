@@ -1,16 +1,9 @@
 import Link from "next/link";
 import type { Section } from "@prisma/client";
 import { NavLinks } from "./nav-links";
+import { HeaderSession } from "./header-session";
 
-export function StoreHeader({
-  sections,
-  cartCount,
-  userName,
-}: {
-  sections: Section[];
-  cartCount: number;
-  userName?: string | null;
-}) {
+export function StoreHeader({ sections }: { sections: Section[] }) {
   const links = sections.map((s) => ({ name: s.name, href: `/${s.slug}` }));
   return (
     <>
@@ -42,18 +35,7 @@ export function StoreHeader({
         </div>
       </form>
       <div className="ml-auto flex items-center gap-5 md:ml-0">
-        <Link
-          href={userName ? "/account" : "/sign-in"}
-          className="text-[15px] font-medium !text-ink !no-underline hover:!text-ink-secondary"
-        >
-          {userName ? userName.split(" ")[0] : "Sign in"}
-        </Link>
-        <Link
-          href="/cart"
-          className="text-[15px] font-medium !text-ink !no-underline hover:!text-ink-secondary"
-        >
-          Cart ({cartCount})
-        </Link>
+        <HeaderSession />
       </div>
     </header>
     {/* Mobile: sections + search ride a scrollable row under the header */}

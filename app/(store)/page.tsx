@@ -4,16 +4,24 @@ import { getSections } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { SECTION_ART } from "@/lib/product-art";
+import { buildSafe } from "@/lib/build-safe";
 
-export const dynamic = "force-dynamic";
+// CDN-cached and revalidated every 5 minutes; admin catalog mutations purge
+// it immediately via revalidatePath. The catch-fallbacks keep a database-less
+// CI build compiling — Netlify builds always have the database.
+export const revalidate = 300;
 
 export default async function HomePage() {
-  const sections = await getSections();
-  const counts = await prisma.product.groupBy({
-    by: ["sectionId"],
-    where: { active: true },
-    _count: { _all: true },
-  });
+  const sections = await buildSafe(() => getSections(), []);
+  const counts = await buildSafe(
+    () =>
+      prisma.product.groupBy({
+        by: ["sectionId"],
+        where: { active: true },
+        _count: { _all: true },
+      }),
+    []
+  );
   const countBySection = Object.fromEntries(
     counts.map((c) => [c.sectionId, c._count._all])
   );

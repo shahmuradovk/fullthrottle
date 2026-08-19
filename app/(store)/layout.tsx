@@ -1,28 +1,21 @@
 import { getSections } from "@/lib/catalog";
-import { cartCount } from "@/lib/cart";
-import { auth } from "@/auth";
+import { buildSafe } from "@/lib/build-safe";
 import { StoreHeader } from "@/components/store/header";
 import { StoreFooter } from "@/components/store/footer";
 
-export const dynamic = "force-dynamic";
+// No cookies are read here on purpose: catalog pages stay CDN-cacheable and
+// the header's account/cart links hydrate from /api/session-summary instead.
+export const revalidate = 300;
 
 export default async function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sections, count, session] = await Promise.all([
-    getSections(),
-    cartCount(),
-    auth(),
-  ]);
+  const sections = await buildSafe(() => getSections(), []);
   return (
     <div className="flex min-h-screen flex-col">
-      <StoreHeader
-        sections={sections}
-        cartCount={count}
-        userName={session?.user?.name}
-      />
+      <StoreHeader sections={sections} />
       <div className="flex-1">{children}</div>
       <StoreFooter />
     </div>

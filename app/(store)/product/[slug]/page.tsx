@@ -11,7 +11,9 @@ import { Callout } from "@/components/ui/callout";
 import { BuyBox } from "@/components/catalog/buy-box";
 import { productArt } from "@/lib/product-art";
 
-export const dynamic = "force-dynamic";
+// Rendered on first visit, then served from the CDN cache; admin product
+// edits purge it via revalidatePath.
+export const revalidate = 300;
 
 type Params = { slug: string };
 

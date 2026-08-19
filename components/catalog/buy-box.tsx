@@ -25,6 +25,8 @@ export function BuyBox({
 
   useEffect(() => {
     if (result?.ok) {
+      // Nudge the header's cart badge (it hydrates from /api/session-summary).
+      window.dispatchEvent(new Event("ft:cart-updated"));
       setToastVisible(true);
       const t = setTimeout(() => setToastVisible(false), 3200);
       return () => clearTimeout(t);

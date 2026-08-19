@@ -4,7 +4,6 @@ import { ProductCard } from "@/components/catalog/product-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
 
 export default async function SearchPage({
   searchParams,

@@ -44,26 +44,71 @@ export function AssistantChat() {
           messages: next.map(({ role, content }) => ({ role, content })),
         }),
       });
-      const data = (await res.json()) as {
-        reply?: string;
-        steps?: Step[];
-        error?: string;
-      };
-      if (!res.ok || data.error) {
+
+      // Non-stream failures (not signed in, rate limit, unconfigured) are JSON.
+      if (!res.ok || !res.body) {
+        let message = "Something failed — try again.";
+        try {
+          const data = (await res.json()) as { error?: string };
+          if (data.error) message = data.error;
+        } catch {
+          // non-JSON body — keep the generic message
+        }
+        setMessages([...next, { role: "assistant", content: message, error: true }]);
+        return;
+      }
+
+      // The run streams as NDJSON — steps paint the moment each action lands.
+      const steps: Step[] = [];
+      let reply = "";
+      let isError = false;
+      let finished = false;
+      const paint = () =>
         setMessages([
           ...next,
-          {
-            role: "assistant",
-            content: data.error ?? "Something failed — try again.",
-            steps: data.steps,
-            error: true,
-          },
+          { role: "assistant", content: reply, steps: [...steps], error: isError },
         ]);
-      } else {
-        setMessages([
-          ...next,
-          { role: "assistant", content: data.reply ?? "", steps: data.steps },
-        ]);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let event: { type?: string; name?: string; summary?: string; reply?: string; error?: string };
+          try {
+            event = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (event.type === "step") {
+            steps.push({ name: event.name ?? "", summary: event.summary ?? "" });
+            paint();
+          } else if (event.type === "reply") {
+            reply = event.reply ?? "";
+            finished = true;
+            paint();
+          } else if (event.type === "error") {
+            reply = event.error ?? "The assistant hit an unexpected error.";
+            isError = true;
+            finished = true;
+            paint();
+          }
+        }
+      }
+
+      if (!finished) {
+        // The connection was cut mid-run. Completed steps above already ran.
+        reply = steps.length
+          ? "The connection dropped mid-task — the steps above did run. Say “continue” and I'll pick up from there."
+          : "Network hiccup — send that again.";
+        isError = true;
+        paint();
       }
     } catch {
       setMessages([

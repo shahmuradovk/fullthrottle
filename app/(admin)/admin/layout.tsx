@@ -22,7 +22,12 @@ export default async function AdminLayout({
     { label: "Products", href: "/admin/products" },
     { label: "Orders", href: "/admin/orders" },
     { label: "Supplier", href: "/admin/supplier" },
-    ...(session?.role === "OWNER" ? [{ label: "Users", href: "/admin/users" }] : []),
+    ...(session?.role === "OWNER"
+      ? [
+          { label: "Users", href: "/admin/users" },
+          { label: "Integrations", href: "/admin/integrations" },
+        ]
+      : []),
   ];
 
   return (

@@ -213,6 +213,15 @@ model AdminPasswordResetToken {
   createdAt DateTime  @default(now())
 }
 
+// Small key/value store for admin-managed configuration (the Integrations
+// screen). Secrets are sealed with AES-256-GCM before they land here — see
+// lib/settings.ts — so a database leak alone doesn't expose them.
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   actorId   String

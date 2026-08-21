@@ -1,13 +1,15 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/guard";
-import { assistantConfigured, assistantModel } from "@/lib/assistant/openrouter";
+import { assistantConfig } from "@/lib/assistant/openrouter";
 import { AssistantChat } from "./assistant-chat";
 
 export const dynamic = "force-dynamic";
 
 export default async function AssistantPage() {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const config = await assistantConfig();
 
-  if (!assistantConfigured()) {
+  if (!config.apiKey) {
     return (
       <div>
         <h1 className="mb-4 font-display text-[28px] font-bold text-ink">ASSISTANT</h1>
@@ -25,20 +27,19 @@ export default async function AssistantPage() {
             and order work on your instruction — everything role-checked and
             audit-logged under your account.
           </p>
-          <dl className="mt-4 flex flex-col gap-2.5 border-t border-line pt-4">
-            <div className="flex gap-3 text-sm">
-              <dt className="type-label w-[150px] shrink-0 text-ink-secondary">To enable</dt>
-              <dd className="m-0 font-mono text-xs text-ink">
-                Set OPENROUTER_API_KEY (openrouter.ai → Keys) and redeploy
-              </dd>
-            </div>
-            <div className="flex gap-3 text-sm">
-              <dt className="type-label w-[150px] shrink-0 text-ink-secondary">Model</dt>
-              <dd className="m-0 font-mono text-xs text-ink">
-                {assistantModel()} · override with OPENROUTER_MODEL
-              </dd>
-            </div>
-          </dl>
+          <p className="mt-4 border-t border-line pt-4 text-sm text-ink">
+            {session.role === "OWNER" ? (
+              <>
+                Connect your OpenRouter key under{" "}
+                <Link href="/admin/integrations" className="underline underline-offset-[3px]">
+                  Integrations
+                </Link>{" "}
+                — it takes a minute and you can pick the model there too.
+              </>
+            ) : (
+              <>Ask the store owner to connect OpenRouter under Admin → Integrations.</>
+            )}
+          </p>
         </div>
       </div>
     );
@@ -49,7 +50,7 @@ export default async function AssistantPage() {
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="font-display text-[28px] font-bold text-ink">ASSISTANT</h1>
         <span className="font-mono text-[11px] uppercase text-ink-secondary">
-          {assistantModel()} · via OpenRouter
+          {config.model} · via OpenRouter
         </span>
       </div>
       <AssistantChat />

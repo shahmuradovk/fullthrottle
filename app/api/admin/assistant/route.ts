@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readAdminSession } from "@/lib/admin/session";
 import { rateLimit, RateLimitError } from "@/lib/rate-limit";
 import {
-  assistantConfigured,
+  assistantConfig,
   chatCompletion,
   type ORMessage,
 } from "@/lib/assistant/openrouter";
@@ -37,9 +37,14 @@ export async function POST(request: Request) {
   if (!session || session.stage !== "full") {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
-  if (!assistantConfigured()) {
-    return NextResponse.json({ error: "OPENROUTER_API_KEY is not set." }, { status: 503 });
+  const config = await assistantConfig();
+  if (!config.apiKey) {
+    return NextResponse.json(
+      { error: "No OpenRouter key yet — add one under Admin → Integrations." },
+      { status: 503 }
+    );
   }
+  const apiKey = config.apiKey;
 
   try {
     await rateLimit({ key: `assistant:${session.adminId}`, max: 30, windowSeconds: 600 });
@@ -73,50 +78,90 @@ export async function POST(request: Request) {
     { role: "system", content: SYSTEM_PROMPT },
     ...history,
   ];
-  const steps: { name: string; summary: string }[] = [];
 
-  try {
-    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-      const { content, toolCalls } = await chatCompletion({
-        messages,
-        tools: TOOL_DEFS,
-      });
-
-      if (toolCalls.length === 0 || round === MAX_TOOL_ROUNDS) {
-        return NextResponse.json({
-          reply:
-            content ??
-            (round === MAX_TOOL_ROUNDS
-              ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
-              : ""),
-          steps,
-        });
-      }
-
-      messages.push({ role: "assistant", content, tool_calls: toolCalls });
-
-      for (const call of toolCalls) {
-        let args: Record<string, unknown> = {};
+  // The whole run is streamed as NDJSON (step / reply / error / ping events).
+  // Bytes flow from the first moment and between model rounds, so a long
+  // multi-tool task neither hits the platform's response timeout nor leaves
+  // the admin staring at a spinner — steps render as they happen.
+  const encoder = new TextEncoder();
+  let closed = false;
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (event: Record<string, unknown>) => {
+        if (closed) return;
         try {
-          args = JSON.parse(call.function.arguments || "{}") as Record<string, unknown>;
+          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
         } catch {
-          messages.push({
-            role: "tool",
-            tool_call_id: call.id,
-            content: JSON.stringify({ error: "Arguments were not valid JSON." }),
-          });
-          steps.push({ name: call.function.name, summary: `✗ ${call.function.name}: bad arguments` });
-          continue;
+          closed = true; // client went away — keep executing, stop writing
         }
-        const { result, summary } = await executeTool(session, call.function.name, args);
-        steps.push({ name: call.function.name, summary });
-        messages.push({ role: "tool", tool_call_id: call.id, content: result });
+      };
+      const heartbeat = setInterval(() => send({ type: "ping" }), 8000);
+
+      try {
+        for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+          const { content, toolCalls } = await chatCompletion({
+            messages,
+            tools: TOOL_DEFS,
+            config: { apiKey, model: config.model },
+          });
+
+          if (toolCalls.length === 0 || round === MAX_TOOL_ROUNDS) {
+            send({
+              type: "reply",
+              reply:
+                content ??
+                (round === MAX_TOOL_ROUNDS
+                  ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
+                  : ""),
+            });
+            break;
+          }
+
+          messages.push({ role: "assistant", content, tool_calls: toolCalls });
+
+          for (const call of toolCalls) {
+            let args: Record<string, unknown> = {};
+            try {
+              args = JSON.parse(call.function.arguments || "{}") as Record<string, unknown>;
+            } catch {
+              messages.push({
+                role: "tool",
+                tool_call_id: call.id,
+                content: JSON.stringify({ error: "Arguments were not valid JSON." }),
+              });
+              send({
+                type: "step",
+                name: call.function.name,
+                summary: `✗ ${call.function.name}: bad arguments`,
+              });
+              continue;
+            }
+            const { result, summary } = await executeTool(session, call.function.name, args);
+            send({ type: "step", name: call.function.name, summary });
+            messages.push({ role: "tool", tool_call_id: call.id, content: result });
+          }
+        }
+      } catch (e) {
+        send({
+          type: "error",
+          error: e instanceof Error ? e.message : "The assistant hit an unexpected error.",
+        });
+      } finally {
+        clearInterval(heartbeat);
+        closed = true;
+        try {
+          controller.close();
+        } catch {
+          // already closed by the runtime
+        }
       }
-    }
-    // unreachable, loop always returns
-    return NextResponse.json({ reply: "", steps });
-  } catch (e) {
-    const message = e instanceof Error ? e.message : "The assistant hit an unexpected error.";
-    return NextResponse.json({ error: message, steps }, { status: 502 });
-  }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "content-type": "application/x-ndjson; charset=utf-8",
+      "cache-control": "no-store, no-transform",
+    },
+  });
 }

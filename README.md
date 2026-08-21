@@ -57,6 +57,14 @@ component gallery lives at `/gallery`.
   PayPal), order confirmation and tracking, account area (orders, addresses,
   profile). JSON-LD on product pages, sitemap, JSONL product feed at
   `/api/feed`.
+- **AI admin assistant** (`/admin/assistant`) — chat with a Claude model (via
+  OpenRouter, `OPENROUTER_API_KEY` + optional `OPENROUTER_MODEL`) that does
+  the admin's work on instruction: reads the whole catalog structure, creates
+  sections/brands/attributes/products with realistic spec values and
+  house-style SVG artwork, updates stock and prices, and advances orders.
+  Every action runs under the asking admin's role (CONTENT still can't touch
+  prices) and writes an AuditLog row; assistant-drawn artwork is sanitized
+  (no scripts/links/external refs) before it renders in the storefront.
 - **Admin** (`/admin`, pin to a subdomain with `ADMIN_HOSTNAME`) — email +
   password + mandatory TOTP, invite-only accounts with roles (OWNER /
   MANAGER / CONTENT — no price changes / ORDERS — fulfillment only),

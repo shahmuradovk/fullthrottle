@@ -15,7 +15,14 @@ export async function readCart() {
     where: { token },
     include: {
       items: {
-        include: { product: { include: { brand: true } } },
+        include: {
+          product: {
+            include: {
+              brand: true,
+              images: { orderBy: { position: "asc" }, take: 1 },
+            },
+          },
+        },
         orderBy: { id: "asc" },
       },
     },

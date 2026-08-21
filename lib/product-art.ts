@@ -19,6 +19,16 @@ export function productArt(slug: string): string | null {
   return PRODUCT_ART.has(slug) ? `/products/${slug}.svg` : null;
 }
 
+// A stored ProductImage (e.g. drawn by the admin assistant) wins over the
+// bundled manifest; the manifest covers the seed catalog; everything else
+// falls back to the placeholder.
+export function resolveProductArt(
+  slug: string,
+  images?: { url: string }[] | null
+): string | null {
+  return images?.[0]?.url ?? productArt(slug);
+}
+
 // Flagship art for the home page section cards.
 export const SECTION_ART: Record<string, string> = {
   "moto-exhaust": "/products/akrapovic-slip-on-line-titanium.svg",

@@ -5,12 +5,16 @@ import { formatAttributeValue } from "@/lib/attributes/format";
 import { productValues } from "@/lib/catalog";
 import { getAvailability } from "@/lib/supplier/availability";
 import { advertisedPriceCents } from "@/lib/pricing";
-import { productArt } from "@/lib/product-art";
+import { resolveProductArt } from "@/lib/product-art";
 import { formatMoney } from "@/lib/money";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { Callout } from "@/components/ui/callout";
 
-type CardProduct = Omit<Product, "values"> & { values: unknown; brand: Brand };
+type CardProduct = Omit<Product, "values"> & {
+  values: unknown;
+  brand: Brand;
+  images?: { url: string }[];
+};
 
 export function ProductCard({
   product,
@@ -22,7 +26,7 @@ export function ProductCard({
   calloutN: number;
 }) {
   const values = productValues(product);
-  const art = productArt(product.slug);
+  const art = resolveProductArt(product.slug, product.images);
   const specLine = attributes
     .filter((a) => a.filterable)
     .sort((a, b) => a.position - b.position)

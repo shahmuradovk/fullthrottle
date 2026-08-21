@@ -9,7 +9,7 @@ import { SpecTable } from "@/components/ui/spec-table";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { Callout } from "@/components/ui/callout";
 import { BuyBox } from "@/components/catalog/buy-box";
-import { productArt } from "@/lib/product-art";
+import { resolveProductArt } from "@/lib/product-art";
 
 // Rendered on first visit, then served from the CDN cache; admin product
 // edits purge it via revalidatePath.
@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
   const defs = product.section.attributes.map(toAttributeDef);
   const values = productValues(product);
-  const art = productArt(product.slug);
+  const art = resolveProductArt(product.slug, product.images);
   const availability = getAvailability(product);
   const advertised = advertisedPriceCents(product);
 

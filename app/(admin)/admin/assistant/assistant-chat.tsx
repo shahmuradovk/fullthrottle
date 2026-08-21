@@ -1,0 +1,177 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
+
+type Step = { name: string; summary: string };
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  steps?: Step[];
+  error?: boolean;
+};
+
+const STARTERS = [
+  "Add the AGV K1 S helmet — full face, fiberglass, DOT + ECE 22.06, 1,450 g, sizes S–XL, $329.95, 6 in stock. Draw its artwork too.",
+  "Which products are low on stock?",
+  "Create a Moto Gloves section with brands Alpinestars and Dainese, and a sensible attribute template.",
+  "Show me the latest orders.",
+];
+
+export function AssistantChat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, busy]);
+
+  const send = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || busy) return;
+    const next: ChatMessage[] = [...messages, { role: "user", content: trimmed }];
+    setMessages(next);
+    setInput("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/assistant", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          messages: next.map(({ role, content }) => ({ role, content })),
+        }),
+      });
+      const data = (await res.json()) as {
+        reply?: string;
+        steps?: Step[];
+        error?: string;
+      };
+      if (!res.ok || data.error) {
+        setMessages([
+          ...next,
+          {
+            role: "assistant",
+            content: data.error ?? "Something failed — try again.",
+            steps: data.steps,
+            error: true,
+          },
+        ]);
+      } else {
+        setMessages([
+          ...next,
+          { role: "assistant", content: data.reply ?? "", steps: data.steps },
+        ]);
+      }
+    } catch {
+      setMessages([
+        ...next,
+        { role: "assistant", content: "Network hiccup — send that again.", error: true },
+      ]);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex h-[calc(100vh-160px)] min-h-[420px] flex-col rounded-1 border border-line bg-surface">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-5">
+        {messages.length === 0 && (
+          <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+            <p className="type-label text-ink-secondary">Fiche AI-01 · Admin assistant</p>
+            <p className="max-w-md text-sm text-ink-secondary">
+              Give it a task — it knows the whole catalog, creates sections, brands,
+              attributes and products (artwork included), and moves orders. Every
+              action runs under your account and lands in the audit log.
+            </p>
+            <div className="flex max-w-xl flex-wrap justify-center gap-2">
+              {STARTERS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => send(s)}
+                  className="cursor-pointer rounded-1 border border-line bg-bg px-3 py-2 text-left text-xs text-ink hover:border-ink"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4">
+          {messages.map((m, i) => (
+            <div
+              key={i}
+              className={cn(
+                "max-w-[85%] rounded-1 border p-3.5",
+                m.role === "user"
+                  ? "self-end border-line bg-bg"
+                  : m.error
+                    ? "self-start border-error bg-error-bg"
+                    : "self-start border-line bg-bg"
+              )}
+            >
+              <p className="type-label mb-1.5 text-ink-secondary">
+                {m.role === "user" ? "You" : "Assistant"}
+              </p>
+              {m.steps && m.steps.length > 0 && (
+                <div className="mb-2 flex flex-col gap-1 border-b border-line pb-2">
+                  {m.steps.map((s, j) => (
+                    <p key={j} className="font-mono text-[11px] text-ink-secondary">
+                      <span
+                        className={s.summary.startsWith("✗") ? "text-error" : "text-accent"}
+                      >
+                        →
+                      </span>{" "}
+                      {s.summary}
+                    </p>
+                  ))}
+                </div>
+              )}
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                {m.content}
+              </p>
+            </div>
+          ))}
+          {busy && (
+            <p className="self-start font-mono text-xs text-ink-secondary">
+              <span className="text-accent">→</span> working…
+            </p>
+          )}
+        </div>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          send(input);
+        }}
+        className="flex items-end gap-2.5 border-t border-line p-3.5"
+      >
+        <label htmlFor="assistant-input" className="sr-only">
+          Task for the assistant
+        </label>
+        <textarea
+          id="assistant-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send(input);
+            }
+          }}
+          rows={2}
+          placeholder='e.g. "New product: Shoei Neotec 3 modular, $749.99, 4 in stock — add it with artwork."'
+          className="flex-1 resize-none rounded-1 border border-line bg-bg px-3 py-2.5 text-sm text-ink outline-none placeholder:text-ink-secondary"
+        />
+        <Button type="submit" size="small" disabled={busy || !input.trim()}>
+          {busy ? "Working…" : "Send"}
+        </Button>
+      </form>
+    </div>
+  );
+}

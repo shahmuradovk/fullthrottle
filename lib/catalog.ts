@@ -63,7 +63,7 @@ export async function listSectionProducts(
 ): Promise<ListingResult> {
   const all = await prisma.product.findMany({
     where: { sectionId, active: true },
-    include: { brand: true },
+    include: { brand: true, images: { orderBy: { position: "asc" }, take: 1 } },
   });
 
   const defs = attributes.map(toAttributeDef);
@@ -111,7 +111,11 @@ export async function searchProducts(query: string) {
         { brand: { name: { contains: q, mode: "insensitive" } } },
       ],
     },
-    include: { brand: true, section: true },
+    include: {
+      brand: true,
+      section: true,
+      images: { orderBy: { position: "asc" }, take: 1 },
+    },
     orderBy: { name: "asc" },
     take: 60,
   });

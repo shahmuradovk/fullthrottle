@@ -6,7 +6,7 @@ import { getAvailability } from "@/lib/supplier/availability";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { removeFromCartAction, setCartQtyAction } from "./actions";
-import { resolveProductArt } from "@/lib/product-art";
+import { artWellClass, resolveProductArt } from "@/lib/product-art";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +65,7 @@ export default async function CartPage() {
                 className="flex flex-wrap items-center gap-4 border-b border-line p-5"
               >
                 <div
-                  className={`flex h-[90px] w-[110px] shrink-0 items-center justify-center rounded-1 border border-line ${resolveProductArt(item.product.slug, item.product.images) ? "bg-well-deep" : "img-placeholder"}`}
+                  className={`flex h-[90px] w-[110px] shrink-0 items-center justify-center rounded-1 border border-line ${artWellClass(resolveProductArt(item.product.slug, item.product.images))}`}
                 >
                   {resolveProductArt(item.product.slug, item.product.images) ? (
                     // eslint-disable-next-line @next/next/no-img-element

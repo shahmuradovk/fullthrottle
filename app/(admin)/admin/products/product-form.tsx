@@ -183,7 +183,7 @@ export function ProductForm({
               <img
                 src={currentImage.url}
                 alt={currentImage.alt}
-                className="h-16 w-20 shrink-0 rounded-1 border border-line bg-well-deep object-contain p-1"
+                className="h-16 w-20 shrink-0 rounded-1 border border-line bg-white object-contain p-1"
               />
               <p className="text-xs text-ink-secondary">
                 Current photo. Paste a new URL above to replace it on save.

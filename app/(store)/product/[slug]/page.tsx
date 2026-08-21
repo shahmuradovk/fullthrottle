@@ -9,7 +9,7 @@ import { SpecTable } from "@/components/ui/spec-table";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { Callout } from "@/components/ui/callout";
 import { BuyBox } from "@/components/catalog/buy-box";
-import { resolveProductArt } from "@/lib/product-art";
+import { artWellClass, resolveProductArt } from "@/lib/product-art";
 
 // Rendered on first visit, then served from the CDN cache; admin product
 // edits purge it via revalidatePath.
@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
       <div className="grid items-start gap-10 lg:grid-cols-[1fr_480px] lg:gap-12">
         <div>
           <div
-            className={`relative flex h-[320px] items-center justify-center rounded-1 border border-line md:h-[520px] ${art ? "bg-well-deep" : "img-placeholder"}`}
+            className={`relative flex h-[320px] items-center justify-center rounded-1 border border-line md:h-[520px] ${artWellClass(art)}`}
           >
             <span className="absolute left-4 top-4 z-10 flex items-center gap-2">
               <Callout n={1} className="bg-surface" />

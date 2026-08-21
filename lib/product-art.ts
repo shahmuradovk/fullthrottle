@@ -29,6 +29,14 @@ export function resolveProductArt(
   return images?.[0]?.url ?? productArt(slug);
 }
 
+// Real photos are studio shots that read best on a white well; the legacy
+// bundled vector art was drawn for the dark well. Pick the frame per source
+// so the grid stays uniform.
+export function artWellClass(art: string | null): string {
+  if (!art) return "img-placeholder";
+  return art.startsWith("/products/") ? "bg-well-deep" : "bg-white";
+}
+
 // Flagship art for the home page section cards.
 export const SECTION_ART: Record<string, string> = {
   "moto-exhaust": "/products/akrapovic-slip-on-line-titanium.svg",

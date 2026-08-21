@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/guard";
 import { assistantConfig } from "@/lib/assistant/openrouter";
+import { prisma } from "@/lib/db";
 import { AssistantChat } from "./assistant-chat";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,21 @@ export default async function AssistantPage() {
     );
   }
 
+  // The latest conversation comes back on every visit — history lives in the
+  // database, so a reload (or a model switch in Integrations) loses nothing.
+  const conversation = await prisma.assistantConversation.findFirst({
+    where: { adminId: session.adminId },
+    orderBy: { updatedAt: "desc" },
+    include: { messages: { orderBy: { createdAt: "asc" }, take: 60 } },
+  });
+  const initialMessages =
+    conversation?.messages.map((m) => ({
+      role: m.role === "user" ? ("user" as const) : ("assistant" as const),
+      content: m.content,
+      steps: (m.steps as { name: string; summary: string }[] | null) ?? undefined,
+      error: m.error || undefined,
+    })) ?? [];
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
@@ -53,7 +69,10 @@ export default async function AssistantPage() {
           {config.model} · via OpenRouter
         </span>
       </div>
-      <AssistantChat />
+      <AssistantChat
+        initialConversationId={conversation?.id ?? null}
+        initialMessages={initialMessages}
+      />
     </div>
   );
 }

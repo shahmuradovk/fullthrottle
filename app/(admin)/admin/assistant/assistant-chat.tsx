@@ -19,8 +19,15 @@ const STARTERS = [
   "Show me the latest orders.",
 ];
 
-export function AssistantChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export function AssistantChat({
+  initialConversationId = null,
+  initialMessages = [],
+}: {
+  initialConversationId?: string | null;
+  initialMessages?: ChatMessage[];
+}) {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [conversationId, setConversationId] = useState<string | null>(initialConversationId);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -41,6 +48,7 @@ export function AssistantChat() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          conversationId,
           messages: next.map(({ role, content }) => ({ role, content })),
         }),
       });
@@ -80,13 +88,22 @@ export function AssistantChat() {
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line.trim()) continue;
-          let event: { type?: string; name?: string; summary?: string; reply?: string; error?: string };
+          let event: {
+            type?: string;
+            name?: string;
+            summary?: string;
+            reply?: string;
+            error?: string;
+            conversationId?: string;
+          };
           try {
             event = JSON.parse(line);
           } catch {
             continue;
           }
-          if (event.type === "step") {
+          if (event.type === "meta" && event.conversationId) {
+            setConversationId(event.conversationId);
+          } else if (event.type === "step") {
             steps.push({ name: event.name ?? "", summary: event.summary ?? "" });
             paint();
           } else if (event.type === "reply") {
@@ -122,6 +139,24 @@ export function AssistantChat() {
 
   return (
     <div className="flex h-[calc(100vh-160px)] min-h-[420px] flex-col rounded-1 border border-line bg-surface">
+      {messages.length > 0 && (
+        <div className="flex items-center justify-between border-b border-line px-5 py-2">
+          <span className="type-label text-ink-secondary">
+            Conversation — saved automatically
+          </span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setMessages([]);
+              setConversationId(null);
+            }}
+            className="cursor-pointer border-none bg-transparent p-0 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-secondary underline underline-offset-[3px] hover:text-ink disabled:opacity-50"
+          >
+            New chat
+          </button>
+        </div>
+      )}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-5">
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">

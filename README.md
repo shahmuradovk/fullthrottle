@@ -57,13 +57,21 @@ component gallery lives at `/gallery`.
   Element — card/Apple Pay/Google Pay — and PayPal), order confirmation and
   tracking, account area (orders, addresses, profile). JSON-LD on product pages, sitemap, JSONL product feed at
   `/api/feed`.
-- **AI admin assistant** (`/admin/assistant`) — chat with a Claude model (via
-  OpenRouter, `OPENROUTER_API_KEY` + optional `OPENROUTER_MODEL`) that does
-  the admin's work on instruction: reads the whole catalog structure, creates
-  sections/brands/attributes/products with realistic spec values and the
-  product's real photo, updates stock and prices, and advances orders.
-  Every action runs under the asking admin's role (CONTENT still can't touch
-  prices) and writes an AuditLog row.
+- **AI admin assistant** (`/admin/assistant`) — chat with a Claude model via
+  OpenRouter that does the admin's work on instruction: reads the whole
+  catalog structure, creates sections/brands/attributes/products with
+  realistic spec values and the product's real photo, updates stock and
+  prices, and advances orders. Configured from **Admin → Integrations**
+  (OWNER pastes the OpenRouter key — verified before storage, sealed with
+  AES-GCM — and picks any tool-capable model from the live catalog;
+  `OPENROUTER_API_KEY`/`OPENROUTER_MODEL` env vars remain as fallbacks).
+  Runs stream step-by-step, so long multi-tool tasks survive serverless
+  timeouts and the admin watches actions land live. Conversations persist in
+  the database and reload with the page, and the assistant keeps a **store
+  notebook** — terse lessons it saves about this store's conventions — that
+  is injected into every future session, so a model switch inherits all
+  accumulated experience. Every action runs under the asking admin's role
+  (CONTENT still can't touch prices) and writes an AuditLog row.
 - **Product photos** — real photos, attached by direct image URL (admin
   product form or the assistant's `set_product_image` tool). The server
   downloads the image, verifies it by magic bytes (JPEG/PNG/WebP/AVIF, 4MB

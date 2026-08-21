@@ -7,6 +7,9 @@ import {
   type ORMessage,
 } from "@/lib/assistant/openrouter";
 import { TOOL_DEFS, executeTool } from "@/lib/assistant/tools";
+import { formatNotebook, readNotes } from "@/lib/assistant/notes";
+import { prisma } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,9 +31,30 @@ Working rules:
 4. Never invent prices or stock counts without telling the admin what you assumed. If the admin gave no price, ask instead of guessing.
 5. Destructive or irreversible things (unpublishing, cancelling orders) — confirm with the admin first unless they explicitly asked.
 6. If a tool returns an error, fix the cause (e.g. missing brand) and retry once; otherwise report exactly what failed.
-7. Reply in the language the admin writes in. Be brief: say what you did, list anything you assumed, and stop.`;
+7. Reply in the language the admin writes in. Be brief: say what you did, list anything you assumed, and stop.
+8. The store notebook at the end of this prompt is distilled experience from earlier sessions — possibly under a different model. Treat it as ground truth about how this store works. Whenever you learn something durable (a store convention, an admin preference, a mistake you made and its fix), record ONE terse line with save_note so no future session repeats the mistake. Never save one-off facts or duplicates.`;
 
 type ClientMessage = { role: "user" | "assistant"; content: string };
+
+// Reuse the caller's conversation when it's really theirs; otherwise start a
+// fresh one titled after the first instruction.
+async function resolveConversation(
+  adminId: string,
+  requestedId: unknown,
+  firstMessage: string
+): Promise<string> {
+  if (typeof requestedId === "string" && requestedId) {
+    const existing = await prisma.assistantConversation.findFirst({
+      where: { id: requestedId, adminId },
+      select: { id: true },
+    });
+    if (existing) return existing.id;
+  }
+  const created = await prisma.assistantConversation.create({
+    data: { adminId, title: firstMessage.slice(0, 80) },
+  });
+  return created.id;
+}
 
 export async function POST(request: Request) {
   const session = await readAdminSession();
@@ -55,9 +79,9 @@ export async function POST(request: Request) {
     throw e;
   }
 
-  let body: { messages?: ClientMessage[] };
+  let body: { messages?: ClientMessage[]; conversationId?: unknown };
   try {
-    body = (await request.json()) as { messages?: ClientMessage[] };
+    body = (await request.json()) as { messages?: ClientMessage[]; conversationId?: unknown };
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -74,8 +98,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Send a user message." }, { status: 400 });
   }
 
+  const lastUserMessage = history[history.length - 1].content;
+  const conversationId = await resolveConversation(
+    session.adminId,
+    body.conversationId,
+    lastUserMessage
+  );
+  await prisma.assistantMessage.create({
+    data: { conversationId, role: "user", content: lastUserMessage },
+  });
+
+  const notes = await readNotes();
   const messages: ORMessage[] = [
-    { role: "system", content: SYSTEM_PROMPT },
+    {
+      role: "system",
+      content: `${SYSTEM_PROMPT}\n\nStore notebook (lessons carried across sessions and models):\n${formatNotebook(notes)}`,
+    },
     ...history,
   ];
 
@@ -96,6 +134,13 @@ export async function POST(request: Request) {
         }
       };
       const heartbeat = setInterval(() => send({ type: "ping" }), 8000);
+      send({ type: "meta", conversationId });
+
+      // Mirrors of what was streamed, persisted as the assistant turn so the
+      // conversation survives reloads and future model switches inherit it.
+      const stepLog: { name: string; summary: string }[] = [];
+      let replyText = "";
+      let replyError = false;
 
       try {
         for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
@@ -106,14 +151,12 @@ export async function POST(request: Request) {
           });
 
           if (toolCalls.length === 0 || round === MAX_TOOL_ROUNDS) {
-            send({
-              type: "reply",
-              reply:
-                content ??
-                (round === MAX_TOOL_ROUNDS
-                  ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
-                  : ""),
-            });
+            replyText =
+              content ??
+              (round === MAX_TOOL_ROUNDS
+                ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
+                : "");
+            send({ type: "reply", reply: replyText });
             break;
           }
 
@@ -129,25 +172,40 @@ export async function POST(request: Request) {
                 tool_call_id: call.id,
                 content: JSON.stringify({ error: "Arguments were not valid JSON." }),
               });
-              send({
-                type: "step",
-                name: call.function.name,
-                summary: `✗ ${call.function.name}: bad arguments`,
-              });
+              const summary = `✗ ${call.function.name}: bad arguments`;
+              stepLog.push({ name: call.function.name, summary });
+              send({ type: "step", name: call.function.name, summary });
               continue;
             }
             const { result, summary } = await executeTool(session, call.function.name, args);
+            stepLog.push({ name: call.function.name, summary });
             send({ type: "step", name: call.function.name, summary });
             messages.push({ role: "tool", tool_call_id: call.id, content: result });
           }
         }
       } catch (e) {
-        send({
-          type: "error",
-          error: e instanceof Error ? e.message : "The assistant hit an unexpected error.",
-        });
+        replyText = e instanceof Error ? e.message : "The assistant hit an unexpected error.";
+        replyError = true;
+        send({ type: "error", error: replyText });
       } finally {
         clearInterval(heartbeat);
+        try {
+          await prisma.assistantMessage.create({
+            data: {
+              conversationId,
+              role: "assistant",
+              content: replyText,
+              steps: stepLog as unknown as Prisma.InputJsonValue,
+              error: replyError,
+            },
+          });
+          await prisma.assistantConversation.update({
+            where: { id: conversationId },
+            data: { updatedAt: new Date() },
+          });
+        } catch {
+          // history is best-effort — the streamed answer already reached the admin
+        }
         closed = true;
         try {
           controller.close();

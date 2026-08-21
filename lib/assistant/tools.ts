@@ -6,6 +6,7 @@ import { canChangePrices } from "@/lib/admin/guard";
 import type { AdminSession } from "@/lib/admin/session";
 import { transitionOrder, OrderTransitionError } from "@/lib/orders";
 import { fetchImage, storeProductImage } from "@/lib/product-images";
+import { addNote, MAX_NOTE_LENGTH } from "./notes";
 import type { ORToolDef } from "./openrouter";
 import { AttributeType, OrderStatus, type Prisma } from "@prisma/client";
 
@@ -152,6 +153,15 @@ export const TOOL_DEFS: ORToolDef[] = [
         },
         ["sku", "image_url"]
       ),
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "save_note",
+      description:
+        "Record ONE terse, durable lesson about THIS store in the shared notebook. The notebook is injected into every future session — including under a different model — so use it for store conventions, admin preferences, and fixes for mistakes you made. Never for one-off facts or things the notebook already says.",
+      parameters: obj({ note: { type: "string", description: "One line, max 300 chars" } }, ["note"]),
     },
   },
   {
@@ -578,6 +588,28 @@ export async function executeTool(
         return {
           summary: `set photo for ${product.sku} (${Math.round(fetched.bytes.length / 1024)} KB ${fetched.contentType})`,
           result: JSON.stringify({ ok: true, image_url: image.url }),
+        };
+      }
+
+      case "save_note": {
+        const note = String(args.note ?? "").trim();
+        if (!note) throw new ToolError("The note is empty.");
+        if (note.length > MAX_NOTE_LENGTH) {
+          throw new ToolError(`Keep notes under ${MAX_NOTE_LENGTH} characters — distill the lesson.`);
+        }
+        const { added, count } = await addNote(note);
+        if (added) {
+          await writeAudit({
+            actorId: session.adminId,
+            action: "assistant.note.save",
+            entity: "Setting",
+            entityId: "assistant.notes",
+            after: { note },
+          });
+        }
+        return {
+          summary: added ? "saved a lesson to the store notebook" : "notebook already had that lesson",
+          result: JSON.stringify({ ok: true, added, notebook_size: count }),
         };
       }
 

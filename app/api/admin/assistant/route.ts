@@ -35,6 +35,13 @@ Working rules:
 8. The store notebook at the end of this prompt is distilled experience from earlier sessions — possibly under a different model. Treat it as ground truth about how this store works. Whenever you learn something durable (a store convention, an admin preference, a mistake you made and its fix), record ONE terse line with save_note so no future session repeats the mistake. Never save one-off facts or duplicates.`;
 
 type ClientMessage = { role: "user" | "assistant"; content: string };
+type Step = { name: string; summary: string };
+
+// One POST = ONE model round (a completion plus its tool calls). The client
+// immediately posts the returned run state back to continue, so no single
+// request outlives a serverless execution limit no matter how long the whole
+// task runs — and the admin sees each round's steps as they land.
+type RunState = { orMessages: ORMessage[]; round: number; steps: Step[] };
 
 // Reuse the caller's conversation when it's really theirs; otherwise start a
 // fresh one titled after the first instruction.
@@ -56,6 +63,46 @@ async function resolveConversation(
   return created.id;
 }
 
+function validRun(run: unknown): run is RunState {
+  if (typeof run !== "object" || run === null) return false;
+  const r = run as RunState;
+  return (
+    Array.isArray(r.orMessages) &&
+    r.orMessages.length > 0 &&
+    r.orMessages.length <= 400 &&
+    typeof r.round === "number" &&
+    r.round >= 1 &&
+    r.round <= MAX_TOOL_ROUNDS &&
+    Array.isArray(r.steps) &&
+    r.steps.length <= 200
+  );
+}
+
+async function persistAssistantTurn(
+  conversationId: string,
+  content: string,
+  steps: Step[],
+  error: boolean
+): Promise<void> {
+  try {
+    await prisma.assistantMessage.create({
+      data: {
+        conversationId,
+        role: "assistant",
+        content,
+        steps: steps as unknown as Prisma.InputJsonValue,
+        error,
+      },
+    });
+    await prisma.assistantConversation.update({
+      where: { id: conversationId },
+      data: { updatedAt: new Date() },
+    });
+  } catch {
+    // history is best-effort — the answer already reached the admin
+  }
+}
+
 export async function POST(request: Request) {
   const session = await readAdminSession();
   if (!session || session.stage !== "full") {
@@ -71,7 +118,8 @@ export async function POST(request: Request) {
   const apiKey = config.apiKey;
 
   try {
-    await rateLimit({ key: `assistant:${session.adminId}`, max: 30, windowSeconds: 600 });
+    // Generous window: every round of a task is one request.
+    await rateLimit({ key: `assistant:${session.adminId}`, max: 150, windowSeconds: 600 });
   } catch (e) {
     if (e instanceof RateLimitError) {
       return NextResponse.json({ error: e.message }, { status: 429 });
@@ -79,9 +127,9 @@ export async function POST(request: Request) {
     throw e;
   }
 
-  let body: { messages?: ClientMessage[]; conversationId?: unknown };
+  let body: { messages?: ClientMessage[]; conversationId?: unknown; run?: unknown };
   try {
-    body = (await request.json()) as { messages?: ClientMessage[]; conversationId?: unknown };
+    body = (await request.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
@@ -97,129 +145,87 @@ export async function POST(request: Request) {
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return NextResponse.json({ error: "Send a user message." }, { status: 400 });
   }
-
   const lastUserMessage = history[history.length - 1].content;
-  const conversationId = await resolveConversation(
-    session.adminId,
-    body.conversationId,
-    lastUserMessage
-  );
-  await prisma.assistantMessage.create({
-    data: { conversationId, role: "user", content: lastUserMessage },
-  });
 
   const notes = await readNotes();
-  const messages: ORMessage[] = [
-    {
-      role: "system",
-      content: `${SYSTEM_PROMPT}\n\nStore notebook (lessons carried across sessions and models):\n${formatNotebook(notes)}`,
-    },
-    ...history,
-  ];
+  const systemMessage: ORMessage = {
+    role: "system",
+    content: `${SYSTEM_PROMPT}\n\nStore notebook (lessons carried across sessions and models):\n${formatNotebook(notes)}`,
+  };
 
-  // The whole run is streamed as NDJSON (step / reply / error / ping events).
-  // Bytes flow from the first moment and between model rounds, so a long
-  // multi-tool task neither hits the platform's response timeout nor leaves
-  // the admin staring at a spinner — steps render as they happen.
-  const encoder = new TextEncoder();
-  let closed = false;
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (event: Record<string, unknown>) => {
-        if (closed) return;
-        try {
-          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
-        } catch {
-          closed = true; // client went away — keep executing, stop writing
-        }
-      };
-      const heartbeat = setInterval(() => send({ type: "ping" }), 8000);
-      send({ type: "meta", conversationId });
+  let conversationId: string;
+  let run: RunState;
+  if (body.run !== undefined) {
+    // Continuation — the conversation must already exist and be the caller's.
+    if (!validRun(body.run) || typeof body.conversationId !== "string") {
+      return NextResponse.json({ error: "Invalid run state." }, { status: 400 });
+    }
+    const owned = await prisma.assistantConversation.findFirst({
+      where: { id: body.conversationId, adminId: session.adminId },
+      select: { id: true },
+    });
+    if (!owned) return NextResponse.json({ error: "Invalid run state." }, { status: 400 });
+    conversationId = owned.id;
+    run = body.run;
+    // The system prompt is always rebuilt server-side, never trusted from the wire.
+    run.orMessages[0] = systemMessage;
+  } else {
+    conversationId = await resolveConversation(session.adminId, body.conversationId, lastUserMessage);
+    await prisma.assistantMessage.create({
+      data: { conversationId, role: "user", content: lastUserMessage },
+    });
+    run = { orMessages: [systemMessage, ...history], round: 0, steps: [] };
+  }
 
-      // Mirrors of what was streamed, persisted as the assistant turn so the
-      // conversation survives reloads and future model switches inherit it.
-      const stepLog: { name: string; summary: string }[] = [];
-      let replyText = "";
-      let replyError = false;
+  try {
+    const { content, toolCalls } = await chatCompletion({
+      messages: run.orMessages,
+      tools: TOOL_DEFS,
+      config: { apiKey, model: config.model },
+    });
 
+    if (toolCalls.length === 0 || run.round >= MAX_TOOL_ROUNDS) {
+      const reply =
+        content ??
+        (run.round >= MAX_TOOL_ROUNDS
+          ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
+          : "");
+      await persistAssistantTurn(conversationId, reply, run.steps, false);
+      return NextResponse.json({ done: true, conversationId, reply, steps: run.steps });
+    }
+
+    run.orMessages.push({ role: "assistant", content, tool_calls: toolCalls });
+    for (const call of toolCalls) {
+      let args: Record<string, unknown> = {};
       try {
-        for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-          const { content, toolCalls } = await chatCompletion({
-            messages,
-            tools: TOOL_DEFS,
-            config: { apiKey, model: config.model },
-          });
-
-          if (toolCalls.length === 0 || round === MAX_TOOL_ROUNDS) {
-            replyText =
-              content ??
-              (round === MAX_TOOL_ROUNDS
-                ? "I hit the per-message action limit — tell me to continue and I'll pick up where I stopped."
-                : "");
-            send({ type: "reply", reply: replyText });
-            break;
-          }
-
-          messages.push({ role: "assistant", content, tool_calls: toolCalls });
-
-          for (const call of toolCalls) {
-            let args: Record<string, unknown> = {};
-            try {
-              args = JSON.parse(call.function.arguments || "{}") as Record<string, unknown>;
-            } catch {
-              messages.push({
-                role: "tool",
-                tool_call_id: call.id,
-                content: JSON.stringify({ error: "Arguments were not valid JSON." }),
-              });
-              const summary = `✗ ${call.function.name}: bad arguments`;
-              stepLog.push({ name: call.function.name, summary });
-              send({ type: "step", name: call.function.name, summary });
-              continue;
-            }
-            const { result, summary } = await executeTool(session, call.function.name, args);
-            stepLog.push({ name: call.function.name, summary });
-            send({ type: "step", name: call.function.name, summary });
-            messages.push({ role: "tool", tool_call_id: call.id, content: result });
-          }
-        }
-      } catch (e) {
-        replyText = e instanceof Error ? e.message : "The assistant hit an unexpected error.";
-        replyError = true;
-        send({ type: "error", error: replyText });
-      } finally {
-        clearInterval(heartbeat);
-        try {
-          await prisma.assistantMessage.create({
-            data: {
-              conversationId,
-              role: "assistant",
-              content: replyText,
-              steps: stepLog as unknown as Prisma.InputJsonValue,
-              error: replyError,
-            },
-          });
-          await prisma.assistantConversation.update({
-            where: { id: conversationId },
-            data: { updatedAt: new Date() },
-          });
-        } catch {
-          // history is best-effort — the streamed answer already reached the admin
-        }
-        closed = true;
-        try {
-          controller.close();
-        } catch {
-          // already closed by the runtime
-        }
+        args = JSON.parse(call.function.arguments || "{}") as Record<string, unknown>;
+      } catch {
+        const summary = `✗ ${call.function.name}: bad arguments`;
+        run.steps.push({ name: call.function.name, summary });
+        run.orMessages.push({
+          role: "tool",
+          tool_call_id: call.id,
+          content: JSON.stringify({ error: "Arguments were not valid JSON." }),
+        });
+        continue;
       }
-    },
-  });
+      const { result, summary } = await executeTool(session, call.function.name, args);
+      run.steps.push({ name: call.function.name, summary });
+      run.orMessages.push({ role: "tool", tool_call_id: call.id, content: result });
+    }
 
-  return new Response(stream, {
-    headers: {
-      "content-type": "application/x-ndjson; charset=utf-8",
-      "cache-control": "no-store, no-transform",
-    },
-  });
+    return NextResponse.json({
+      done: false,
+      conversationId,
+      steps: run.steps,
+      run: { orMessages: run.orMessages, round: run.round + 1, steps: run.steps },
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "The assistant hit an unexpected error.";
+    await persistAssistantTurn(conversationId, message, run.steps, true);
+    return NextResponse.json(
+      { error: message, conversationId, steps: run.steps },
+      { status: 502 }
+    );
+  }
 }

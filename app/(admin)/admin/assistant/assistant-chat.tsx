@@ -13,7 +13,7 @@ type ChatMessage = {
 };
 
 const STARTERS = [
-  "Add the AGV K1 S helmet — full face, fiberglass, DOT + ECE 22.06, 1,450 g, sizes S–XL, $329.95, 6 in stock. Draw its artwork too.",
+  "Add the AGV K1 S helmet — full face, fiberglass, DOT + ECE 22.06, 1,450 g, sizes S–XL, $329.95, 6 in stock. Attach its real photo too.",
   "Which products are low on stock?",
   "Create a Moto Gloves section with brands Alpinestars and Dainese, and a sensible attribute template.",
   "Show me the latest orders.",
@@ -83,8 +83,9 @@ export function AssistantChat() {
             <p className="type-label text-ink-secondary">Fiche AI-01 · Admin assistant</p>
             <p className="max-w-md text-sm text-ink-secondary">
               Give it a task — it knows the whole catalog, creates sections, brands,
-              attributes and products (artwork included), and moves orders. Every
-              action runs under your account and lands in the audit log.
+              attributes and products (real product photos included), and moves
+              orders. Every action runs under your account and lands in the audit
+              log.
             </p>
             <div className="flex max-w-xl flex-wrap justify-center gap-2">
               {STARTERS.map((s) => (
@@ -165,7 +166,7 @@ export function AssistantChat() {
             }
           }}
           rows={2}
-          placeholder='e.g. "New product: Shoei Neotec 3 modular, $749.99, 4 in stock — add it with artwork."'
+          placeholder='e.g. "New product: Shoei Neotec 3 modular, $749.99, 4 in stock — add it with its photo."'
           className="flex-1 resize-none rounded-1 border border-line bg-bg px-3 py-2.5 text-sm text-ink outline-none placeholder:text-ink-secondary"
         />
         <Button type="submit" size="small" disabled={busy || !input.trim()}>

@@ -1,7 +1,7 @@
-// Product illustrations — original vector art drawn to the design system's
-// fiche language, one per seeded product, keyed by slug. Admin-created
-// products fall back to the striped placeholder until a real image-upload
-// pipeline exists (client photography arrives later per the design brief).
+// Interim vector art for the seeded catalog, keyed by slug. Real product
+// photos (stored ProductImage rows, see lib/product-images.ts) always win —
+// this manifest only fills the gap until a photo is attached via the admin
+// form or the assistant's set_product_image tool.
 
 const PRODUCT_ART = new Set([
   "agv-k6-s",
@@ -19,9 +19,9 @@ export function productArt(slug: string): string | null {
   return PRODUCT_ART.has(slug) ? `/products/${slug}.svg` : null;
 }
 
-// A stored ProductImage (e.g. drawn by the admin assistant) wins over the
-// bundled manifest; the manifest covers the seed catalog; everything else
-// falls back to the placeholder.
+// A stored ProductImage (a real photo attached by the admin or the
+// assistant) wins over the bundled manifest; the manifest covers the seed
+// catalog; everything else falls back to the placeholder.
 export function resolveProductArt(
   slug: string,
   images?: { url: string }[] | null

@@ -23,6 +23,7 @@ export default async function EditProductPage({
           brands: { orderBy: { name: "asc" } },
         },
       },
+      images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
     },
   });
   if (!product) notFound();
@@ -54,6 +55,7 @@ export default async function EditProductPage({
           hazmatClass: product.hazmatClass ?? "",
           oversizeFreight: product.oversizeFreight,
         }}
+        currentImage={product.images[0] ?? null}
         canEditPrice={canChangePrices(session)}
       />
     </div>

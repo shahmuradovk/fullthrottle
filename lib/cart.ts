@@ -19,7 +19,7 @@ export async function readCart() {
           product: {
             include: {
               brand: true,
-              images: { orderBy: { position: "asc" }, take: 1 },
+              images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
             },
           },
         },

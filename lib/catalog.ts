@@ -63,7 +63,7 @@ export async function listSectionProducts(
 ): Promise<ListingResult> {
   const all = await prisma.product.findMany({
     where: { sectionId, active: true },
-    include: { brand: true, images: { orderBy: { position: "asc" }, take: 1 } },
+    include: { brand: true, images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 } },
   });
 
   const defs = attributes.map(toAttributeDef);
@@ -94,7 +94,7 @@ export async function getProductBySlug(slug: string) {
     include: {
       brand: true,
       section: { include: { attributes: { orderBy: { position: "asc" } } } },
-      images: { orderBy: { position: "asc" } },
+      images: { select: { url: true, alt: true }, orderBy: { position: "asc" } },
     },
   });
 }
@@ -114,7 +114,7 @@ export async function searchProducts(query: string) {
     include: {
       brand: true,
       section: true,
-      images: { orderBy: { position: "asc" }, take: 1 },
+      images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
     },
     orderBy: { name: "asc" },
     take: 60,

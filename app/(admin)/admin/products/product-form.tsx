@@ -52,6 +52,7 @@ export function ProductForm({
   brands,
   attributes,
   product,
+  currentImage,
   canEditPrice,
 }: {
   sectionId: string;
@@ -59,6 +60,7 @@ export function ProductForm({
   brands: { id: string; name: string }[];
   attributes: AttributeDef[];
   product: ProductFormData | null;
+  currentImage?: { url: string; alt: string } | null;
   canEditPrice: boolean;
 }) {
   const [state, formAction, pending] = useActionState(saveProductAction, null);
@@ -166,6 +168,32 @@ export function ProductForm({
               className={`${inputClass} resize-y`}
             />
           </Field>
+          <Field id="imageUrl" label="Product photo — direct image URL">
+            <input
+              id="imageUrl"
+              name="imageUrl"
+              type="url"
+              placeholder="https://… (right-click the photo → Copy image address)"
+              className={inputClass}
+            />
+          </Field>
+          {currentImage ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={currentImage.url}
+                alt={currentImage.alt}
+                className="h-16 w-20 shrink-0 rounded-1 border border-line bg-well-deep object-contain p-1"
+              />
+              <p className="text-xs text-ink-secondary">
+                Current photo. Paste a new URL above to replace it on save.
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-ink-secondary">
+              JPEG/PNG/WebP/AVIF up to 4MB — downloaded, verified and stored on save.
+            </p>
+          )}
           <p className="text-xs text-ink-secondary">
             Stock state is derived from the count: over 3 = in stock, 1–3 = low stock,
             0 = out of stock. Supplier-synced products show “Ships from supplier (2–4

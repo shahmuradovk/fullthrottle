@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { canChangePrices, requireCatalogAdmin } from "@/lib/admin/guard";
 import { writeAudit } from "@/lib/audit";
 import { slugify } from "@/lib/slug";
+import { fetchImage, storeProductImage } from "@/lib/product-images";
 import type { AttributeValue, AttributeValues } from "@/lib/attributes/types";
 import type { Attribute } from "@prisma/client";
 
@@ -23,6 +24,7 @@ const baseSchema = z.object({
   supplierSku: z.string().trim().optional(),
   description: z.string().trim().optional(),
   publish: z.enum(["draft", "publish"]),
+  imageUrl: z.string().trim().optional(),
   // US compliance
   prop65: z.string().trim().optional(),
   carbEoNumber: z.string().trim().optional(),
@@ -81,6 +83,7 @@ export async function saveProductAction(
     supplierSku: formData.get("supplierSku") ?? "",
     description: formData.get("description") ?? "",
     publish: formData.get("publish") === "publish" ? "publish" : "draft",
+    imageUrl: formData.get("imageUrl") ?? "",
     prop65: formData.get("prop65") ?? "",
     carbEoNumber: formData.get("carbEoNumber") ?? "",
     caLegal: formData.get("caLegal") !== "off-market",
@@ -103,6 +106,15 @@ export async function saveProductAction(
   const existing = data.productId
     ? await prisma.product.findUnique({ where: { id: data.productId } })
     : null;
+  const brand = await prisma.brand.findUnique({ where: { id: data.brandId } });
+
+  // Fetch the photo up front so a bad URL fails the form before anything saves.
+  let photo: { bytes: Buffer; contentType: string } | null = null;
+  if (data.imageUrl) {
+    const fetched = await fetchImage(data.imageUrl);
+    if (!fetched.ok) return { error: `Photo: ${fetched.error}` };
+    photo = fetched;
+  }
 
   // CONTENT cannot change prices (engineering brief §5).
   const allowPrice = canChangePrices(session);
@@ -131,6 +143,7 @@ export async function saveProductAction(
     oversizeFreight: data.oversizeFreight,
   };
 
+  let savedId: string;
   try {
     if (existing) {
       const after = await prisma.product.update({
@@ -145,9 +158,9 @@ export async function saveProductAction(
         before: existing,
         after,
       });
+      savedId = after.id;
     } else {
       const slugBase = slugify(`${data.name}`);
-      const brand = await prisma.brand.findUnique({ where: { id: data.brandId } });
       const slug = slugify(`${brand?.slug ?? ""} ${slugBase}`);
       const created = await prisma.product.create({
         data: { ...common, sectionId: data.sectionId, slug },
@@ -159,6 +172,7 @@ export async function saveProductAction(
         entityId: created.id,
         after: created,
       });
+      savedId = created.id;
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : "";
@@ -166,6 +180,28 @@ export async function saveProductAction(
       return { error: "That SKU or product name is already in the catalog." };
     }
     throw e;
+  }
+
+  if (photo && data.imageUrl) {
+    const image = await storeProductImage({
+      productId: savedId,
+      bytes: photo.bytes,
+      contentType: photo.contentType,
+      alt: `${brand?.name ?? ""} ${data.name}`.trim(),
+      sourceUrl: data.imageUrl,
+    });
+    await writeAudit({
+      actorId: session.adminId,
+      action: "product.image",
+      entity: "ProductImage",
+      entityId: image.id,
+      after: {
+        productId: savedId,
+        sourceUrl: data.imageUrl,
+        contentType: photo.contentType,
+        bytes: photo.bytes.length,
+      },
+    });
   }
 
   revalidatePath("/", "layout");

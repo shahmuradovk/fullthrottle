@@ -60,11 +60,16 @@ component gallery lives at `/gallery`.
 - **AI admin assistant** (`/admin/assistant`) — chat with a Claude model (via
   OpenRouter, `OPENROUTER_API_KEY` + optional `OPENROUTER_MODEL`) that does
   the admin's work on instruction: reads the whole catalog structure, creates
-  sections/brands/attributes/products with realistic spec values and
-  house-style SVG artwork, updates stock and prices, and advances orders.
+  sections/brands/attributes/products with realistic spec values and the
+  product's real photo, updates stock and prices, and advances orders.
   Every action runs under the asking admin's role (CONTENT still can't touch
-  prices) and writes an AuditLog row; assistant-drawn artwork is sanitized
-  (no scripts/links/external refs) before it renders in the storefront.
+  prices) and writes an AuditLog row.
+- **Product photos** — real photos, attached by direct image URL (admin
+  product form or the assistant's `set_product_image` tool). The server
+  downloads the image, verifies it by magic bytes (JPEG/PNG/WebP/AVIF, 4MB
+  cap, https-only with private-host blocking), stores it in Postgres and
+  serves it from `/api/images/[id]` with immutable CDN caching — so the CSP
+  stays at `img-src 'self'` and photos survive the source URL going dead.
 - **Admin** (`/admin`, pin to a subdomain with `ADMIN_HOSTNAME`) — email +
   password + mandatory TOTP, invite-only accounts with roles (OWNER /
   MANAGER / CONTENT — no price changes / ORDERS — fulfillment only),

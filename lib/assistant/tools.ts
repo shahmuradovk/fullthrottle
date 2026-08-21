@@ -5,7 +5,7 @@ import { writeAudit } from "@/lib/audit";
 import { canChangePrices } from "@/lib/admin/guard";
 import type { AdminSession } from "@/lib/admin/session";
 import { transitionOrder, OrderTransitionError } from "@/lib/orders";
-import { sanitizeSvg, svgToDataUri } from "./svg";
+import { fetchImage, storeProductImage } from "@/lib/product-images";
 import type { ORToolDef } from "./openrouter";
 import { AttributeType, OrderStatus, type Prisma } from "@prisma/client";
 
@@ -141,12 +141,16 @@ export const TOOL_DEFS: ORToolDef[] = [
   {
     type: "function",
     function: {
-      name: "set_product_art",
+      name: "set_product_image",
       description:
-        "Attach an SVG illustration to a product (shown on cards and the product page). Draw in the house fiche style: dark garage palette (#16191D/#1F242A/#3A4148), Bone #E8E6E0, Fuel orange #E8622C accents only, side profile, viewBox 0 0 800 600, plain shapes/paths/gradients/patterns — no scripts, links, images or external refs.",
+        "Attach a product's real photo (shown on cards and the product page). image_url must be a direct https link to an actual photograph of this exact product — the manufacturer's product/press photo or a major retailer's image CDN — matching the model and colorway. JPEG/PNG/WebP/AVIF, 4MB max. The server downloads and verifies it before storing; if the download fails you get the reason back — try a different image URL.",
       parameters: obj(
-        { sku: { type: "string" }, svg: { type: "string" } },
-        ["sku", "svg"]
+        {
+          sku: { type: "string" },
+          image_url: { type: "string", description: "Direct https image URL (not a product-page URL)" },
+          alt: { type: "string", description: "Optional alt text; defaults to brand + product name" },
+        },
+        ["sku", "image_url"]
       ),
     },
   },
@@ -542,29 +546,39 @@ export async function executeTool(
         return { summary: `updated ${product.sku}`, result: JSON.stringify({ ok: true }) };
       }
 
-      case "set_product_art": {
+      case "set_product_image": {
         requireRole(session, CATALOG_ROLES, "edit the catalog");
         const product = await findProduct(String(args.sku));
-        const checked = sanitizeSvg(String(args.svg ?? ""));
-        if (!checked.ok) throw new ToolError(checked.error);
-        await prisma.productImage.deleteMany({ where: { productId: product.id } });
-        const image = await prisma.productImage.create({
-          data: {
-            productId: product.id,
-            url: svgToDataUri(checked.svg),
-            alt: `${product.brand.name} ${product.name}`,
-            position: 0,
-          },
+        const sourceUrl = String(args.image_url ?? "").trim();
+        const fetched = await fetchImage(sourceUrl);
+        if (!fetched.ok) throw new ToolError(fetched.error);
+        const image = await storeProductImage({
+          productId: product.id,
+          bytes: fetched.bytes,
+          contentType: fetched.contentType,
+          alt:
+            typeof args.alt === "string" && args.alt.trim()
+              ? args.alt.trim()
+              : `${product.brand.name} ${product.name}`,
+          sourceUrl,
         });
         await writeAudit({
           actorId: session.adminId,
-          action: "assistant.product.art",
+          action: "assistant.product.image",
           entity: "ProductImage",
           entityId: image.id,
-          after: { productId: product.id, bytes: checked.svg.length },
+          after: {
+            productId: product.id,
+            sourceUrl,
+            contentType: fetched.contentType,
+            bytes: fetched.bytes.length,
+          },
         });
         purgeCatalog();
-        return { summary: `set artwork for ${product.sku}`, result: JSON.stringify({ ok: true }) };
+        return {
+          summary: `set photo for ${product.sku} (${Math.round(fetched.bytes.length / 1024)} KB ${fetched.contentType})`,
+          result: JSON.stringify({ ok: true, image_url: image.url }),
+        };
       }
 
       case "list_orders": {

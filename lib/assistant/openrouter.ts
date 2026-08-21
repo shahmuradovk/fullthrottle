@@ -107,6 +107,81 @@ export async function chatCompletion(params: {
   };
 }
 
+// ── Built-in web search (no extra accounts) ──────────────────────────────────
+// OpenRouter's web plugin grounds a cheap model with live search results,
+// billed from the same OpenRouter balance the assistant already uses. This
+// backs the assistant's web_search tool, so finding product pages and photos
+// needs no Google setup at all.
+
+const SEARCH_MODEL_DEFAULT = "openai/gpt-4o-mini";
+
+export type WebSearchResult = {
+  text: string;
+  sources: { title: string | null; url: string }[];
+};
+
+export async function webSearch(
+  query: string,
+  config: { apiKey: string }
+): Promise<({ ok: true } & WebSearchResult) | { ok: false; error: string }> {
+  let res: Response;
+  try {
+    res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": appUrl(),
+        "X-Title": "Fullthrottle Admin Assistant",
+      },
+      body: JSON.stringify({
+        model: process.env.OPENROUTER_SEARCH_MODEL || SEARCH_MODEL_DEFAULT,
+        plugins: [{ id: "web", max_results: 6 }],
+        messages: [
+          {
+            role: "user",
+            content: `Web search task: ${query}\n\nReply with a terse list of the most relevant URLs you found — official/manufacturer or major-retailer product pages, and any DIRECT image URLs (.jpg/.png/.webp) — one line each with a short note. No prose beyond that.`,
+          },
+        ],
+        max_tokens: 700,
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch {
+    return { ok: false, error: "Web search timed out — try once more." };
+  }
+  if (!res.ok) {
+    const body = await res.text();
+    let detail = body.slice(0, 200);
+    try {
+      const parsed = JSON.parse(body) as { error?: { message?: string } };
+      if (parsed.error?.message) detail = parsed.error.message;
+    } catch {
+      // keep raw slice
+    }
+    return { ok: false, error: `Web search failed (${res.status}): ${detail}` };
+  }
+  const data = (await res.json()) as {
+    choices?: {
+      message?: {
+        content?: string | null;
+        annotations?: {
+          type?: string;
+          url_citation?: { url?: string; title?: string };
+        }[];
+      };
+    }[];
+  };
+  const message = data.choices?.[0]?.message;
+  const sources = (message?.annotations ?? [])
+    .filter((a) => a.type === "url_citation" && a.url_citation?.url)
+    .map((a) => ({
+      title: a.url_citation?.title ?? null,
+      url: a.url_citation?.url as string,
+    }));
+  return { ok: true, text: message?.content ?? "", sources };
+}
+
 // ── Integrations screen helpers ──────────────────────────────────────────────
 
 // Proves a key is real before it's stored: /auth/key answers only for valid

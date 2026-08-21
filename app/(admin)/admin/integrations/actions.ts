@@ -11,7 +11,6 @@ import {
   MODEL_SETTING,
   verifyOpenRouterKey,
 } from "@/lib/assistant/openrouter";
-import { CSE_CX_SETTING, CSE_KEY_SETTING, searchImages } from "@/lib/assistant/web";
 
 export type IntegrationFormState = { error: string } | { ok: string } | null;
 
@@ -86,56 +85,6 @@ export async function saveModelAction(
   });
   revalidatePath("/admin/integrations");
   return { ok: `Assistant model set to ${model}.` };
-}
-
-export async function saveGoogleCseAction(
-  _prev: IntegrationFormState,
-  formData: FormData
-): Promise<IntegrationFormState> {
-  const session = await requireOwner();
-  try {
-    await rateLimit({
-      key: `integration-verify:${await clientIp()}`,
-      max: 10,
-      windowSeconds: 600,
-    });
-  } catch (e) {
-    if (e instanceof RateLimitError) return { error: e.message };
-    throw e;
-  }
-
-  const key = String(formData.get("cse_key") ?? "").trim();
-  const cx = String(formData.get("cse_cx") ?? "").trim();
-  if (!key || !cx) return { error: "Both the API key and the Search engine ID are needed." };
-
-  // Prove the pair works with one real (cheap) query before storing it.
-  const test = await searchImages("motorcycle helmet", { key, cx });
-  if (!test.ok) return { error: test.error };
-
-  await setSetting(CSE_KEY_SETTING, sealSecret(key));
-  await setSetting(CSE_CX_SETTING, cx);
-  await writeAudit({
-    actorId: session.adminId,
-    action: "integration.google-cse.save",
-    entity: "Setting",
-    entityId: CSE_KEY_SETTING,
-    after: { last4: key.slice(-4), cx },
-  });
-  revalidatePath("/admin/integrations");
-  return { ok: `Verified — image search returned ${test.results.length} results.` };
-}
-
-export async function clearGoogleCseAction(): Promise<void> {
-  const session = await requireOwner();
-  await deleteSetting(CSE_KEY_SETTING);
-  await deleteSetting(CSE_CX_SETTING);
-  await writeAudit({
-    actorId: session.adminId,
-    action: "integration.google-cse.remove",
-    entity: "Setting",
-    entityId: CSE_KEY_SETTING,
-  });
-  revalidatePath("/admin/integrations");
 }
 
 export async function resetModelAction(): Promise<void> {

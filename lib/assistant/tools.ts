@@ -6,9 +6,9 @@ import { canChangePrices } from "@/lib/admin/guard";
 import type { AdminSession } from "@/lib/admin/session";
 import { transitionOrder, OrderTransitionError } from "@/lib/orders";
 import { fetchImage, storeProductImage } from "@/lib/product-images";
-import { fetchPageMeta, imageSearchConfig, searchImages } from "./web";
+import { fetchPageMeta } from "./web";
 import { addNote, MAX_NOTE_LENGTH } from "./notes";
-import type { ORToolDef } from "./openrouter";
+import { assistantConfig, webSearch, type ORToolDef } from "./openrouter";
 import { AttributeType, OrderStatus, type Prisma } from "@prisma/client";
 
 // Every tool runs under the asking admin's identity: the same role rules as
@@ -159,11 +159,11 @@ export const TOOL_DEFS: ORToolDef[] = [
   {
     type: "function",
     function: {
-      name: "search_product_images",
+      name: "web_search",
       description:
-        "Google image search for real product photos. Returns direct image URLs with source page, title and dimensions — pick the hit that matches the EXACT model and colorway, then pass its image_url to set_product_image. Only works when the Google search integration is connected (Admin → Integrations); the error tells you if it isn't.",
+        "Live web search (built in — always available, no setup). Returns the top result URLs with notes: use it to find the official manufacturer or major-retailer product page for a model, then fetch_page that URL to get its photo. If a direct image URL shows up, pass it straight to set_product_image.",
       parameters: obj(
-        { query: { type: "string", description: 'e.g. "Shoei X-Fifteen matte black helmet product photo"' } },
+        { query: { type: "string", description: 'e.g. "Shoei X-Fifteen Solid Matte Black product page"' } },
         ["query"]
       ),
     },
@@ -613,21 +613,17 @@ export async function executeTool(
         };
       }
 
-      case "search_product_images": {
+      case "web_search": {
         requireRole(session, CATALOG_ROLES, "edit the catalog");
         const query = String(args.query ?? "").trim();
         if (!query) throw new ToolError("Give a search query.");
-        const cfg = await imageSearchConfig();
-        if (!cfg.key || !cfg.cx) {
-          throw new ToolError(
-            "Image search is not connected. The OWNER can add Google search keys under Admin → Integrations. Meanwhile: use fetch_page on a manufacturer/retailer product page you know, or ask the admin for a direct image URL."
-          );
-        }
-        const search = await searchImages(query, { key: cfg.key, cx: cfg.cx });
+        const config = await assistantConfig();
+        if (!config.apiKey) throw new ToolError("OpenRouter is not connected.");
+        const search = await webSearch(query, { apiKey: config.apiKey });
         if (!search.ok) throw new ToolError(search.error);
         return {
-          summary: `searched images: ${query}`,
-          result: JSON.stringify({ results: search.results }),
+          summary: `searched the web: ${query}`,
+          result: JSON.stringify({ answer: search.text, sources: search.sources }),
         };
       }
 

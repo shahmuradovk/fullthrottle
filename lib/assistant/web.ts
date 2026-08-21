@@ -1,14 +1,12 @@
 // Web reach for the assistant, so it can find real product photos itself:
-//   fetch_page  — keyless: pull a public product page and lift its og:image /
-//                 prominent image URLs (product pages nearly always carry the
-//                 official photo in og:image)
-//   image search — optional: Google Programmable Search (key + engine id from
-//                 the Integrations screen, env vars as fallback)
-// Both run server-side under the same https/private-host policy as image
-// downloads; nothing from the page is executed, only text-scanned.
+// fetch_page pulls a public product page and lifts its og:image / prominent
+// image URLs (product pages nearly always carry the official photo in
+// og:image). Runs server-side under the same https/private-host policy as
+// image downloads; nothing from the page is executed, only text-scanned.
+// Live search is the web_search tool (OpenRouter's web plugin — no extra
+// accounts), in lib/assistant/openrouter.ts.
 
 import { checkImageUrl } from "@/lib/product-images";
-import { getSetting, openSecret } from "@/lib/settings";
 
 const PAGE_TIMEOUT_MS = 15_000;
 const MAX_PAGE_CHARS = 2_000_000;
@@ -92,86 +90,4 @@ export async function fetchPageMeta(
     return { ok: false, error: "Download was interrupted — try again." };
   }
   return { ok: true, ...extractPageMeta(html, response.url || checked.url.toString()) };
-}
-
-// ── Google Programmable Search (optional) ────────────────────────────────────
-
-export const CSE_KEY_SETTING = "google_cse.key";
-export const CSE_CX_SETTING = "google_cse.cx";
-
-export type ImageSearchConfig = {
-  key: string | null;
-  cx: string | null;
-  source: "panel" | "env" | null;
-};
-
-export async function imageSearchConfig(): Promise<ImageSearchConfig> {
-  const sealed = await getSetting(CSE_KEY_SETTING);
-  const panelKey = sealed ? openSecret(sealed) : null;
-  const panelCx = await getSetting(CSE_CX_SETTING);
-  if (panelKey && panelCx) return { key: panelKey, cx: panelCx, source: "panel" };
-  const envKey = process.env.GOOGLE_CSE_KEY || null;
-  const envCx = process.env.GOOGLE_CSE_ID || null;
-  if (envKey && envCx) return { key: envKey, cx: envCx, source: "env" };
-  return { key: null, cx: null, source: null };
-}
-
-export type ImageHit = {
-  image_url: string;
-  page_url: string | null;
-  title: string | null;
-  width: number | null;
-  height: number | null;
-};
-
-export async function searchImages(
-  query: string,
-  config: { key: string; cx: string }
-): Promise<{ ok: true; results: ImageHit[] } | { ok: false; error: string }> {
-  const params = new URLSearchParams({
-    key: config.key,
-    cx: config.cx,
-    q: query,
-    searchType: "image",
-    num: "8",
-    safe: "active",
-  });
-  let response: Response;
-  try {
-    response = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`, {
-      signal: AbortSignal.timeout(15_000),
-    });
-  } catch {
-    return { ok: false, error: "Couldn't reach Google image search — try again." };
-  }
-  if (response.status === 429) {
-    return { ok: false, error: "Google search quota exhausted for today (free tier is 100/day)." };
-  }
-  if (!response.ok) {
-    let detail = `status ${response.status}`;
-    try {
-      const body = (await response.json()) as { error?: { message?: string } };
-      if (body.error?.message) detail = body.error.message;
-    } catch {
-      // keep status text
-    }
-    return { ok: false, error: `Google image search failed: ${detail}` };
-  }
-  const data = (await response.json()) as {
-    items?: {
-      link?: string;
-      title?: string;
-      image?: { contextLink?: string; width?: number; height?: number };
-    }[];
-  };
-  const results = (data.items ?? [])
-    .filter((item) => typeof item.link === "string" && item.link.startsWith("https://"))
-    .map((item) => ({
-      image_url: item.link as string,
-      page_url: item.image?.contextLink ?? null,
-      title: item.title ?? null,
-      width: item.image?.width ?? null,
-      height: item.image?.height ?? null,
-    }));
-  return { ok: true, results };
 }

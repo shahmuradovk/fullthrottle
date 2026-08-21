@@ -5,10 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { ORModelOption } from "@/lib/assistant/openrouter";
 import {
-  clearGoogleCseAction,
   clearOpenRouterKeyAction,
   resetModelAction,
-  saveGoogleCseAction,
   saveModelAction,
   saveOpenRouterKeyAction,
   type IntegrationFormState,
@@ -31,7 +29,6 @@ export function IntegrationsForm({
   modelSource,
   defaultModel,
   models,
-  searchSource,
 }: {
   keySource: "panel" | "env" | null;
   keyHint: string | null;
@@ -39,11 +36,9 @@ export function IntegrationsForm({
   modelSource: "panel" | "env" | "default";
   defaultModel: string;
   models: ORModelOption[] | null;
-  searchSource: "panel" | "env" | null;
 }) {
   const [keyState, keyAction, keyPending] = useActionState(saveOpenRouterKeyAction, null);
   const [modelState, modelAction, modelPending] = useActionState(saveModelAction, null);
-  const [cseState, cseAction, csePending] = useActionState(saveGoogleCseAction, null);
 
   const groups: { label: string; test: (id: string) => boolean }[] = [
     { label: "Anthropic", test: (id) => id.startsWith("anthropic/") },
@@ -186,68 +181,6 @@ export function IntegrationsForm({
         )}
       </section>
 
-      {/* ── Google image search (optional) ── */}
-      <section className="rounded-1 border border-line bg-surface p-6">
-        <div className="mb-3 flex items-center gap-2.5">
-          <h2 className="font-display text-[20px] font-semibold text-ink">
-            GOOGLE IMAGE SEARCH
-          </h2>
-          <span
-            className={`rounded-1 border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] ${
-              searchSource
-                ? "border-accent text-accent"
-                : "border-dashed border-ink-secondary text-ink-secondary"
-            }`}
-          >
-            {searchSource ? "Connected" : "Optional"}
-          </span>
-        </div>
-        <p className="mb-4 text-[13px] leading-relaxed text-ink-secondary">
-          Lets the assistant find real product photos on its own instead of
-          asking for links. Without it, the assistant falls back to reading
-          product pages it knows. Setup (free, 100 searches/day): at{" "}
-          <span className="font-mono text-ink">programmablesearchengine.google.com</span>{" "}
-          create an engine that searches the whole web with{" "}
-          <em>Image search</em> ON and copy its <em>Search engine ID</em>; in
-          Google Cloud enable the <em>Custom Search API</em> and create an API
-          key.
-        </p>
-        <form action={cseAction} className="flex flex-col gap-3">
-          <Input
-            id="cse-key"
-            name="cse_key"
-            type="password"
-            label="API key"
-            placeholder="AIza…"
-            autoComplete="off"
-            required
-          />
-          <Input
-            id="cse-cx"
-            name="cse_cx"
-            label="Search engine ID"
-            placeholder="e.g. 4287d31f0…"
-            autoComplete="off"
-            required
-          />
-          <StateLine state={cseState} />
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={csePending}>
-              {csePending ? "Verifying…" : "Verify & save"}
-            </Button>
-          </div>
-        </form>
-        {searchSource === "panel" && (
-          <form action={clearGoogleCseAction} className="mt-3 border-t border-line pt-3">
-            <button
-              type="submit"
-              className="cursor-pointer border-none bg-transparent p-0 font-mono text-[11px] uppercase tracking-[0.06em] text-ink-secondary underline underline-offset-[3px] hover:text-error"
-            >
-              Remove saved keys
-            </button>
-          </form>
-        )}
-      </section>
     </div>
   );
 }

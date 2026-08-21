@@ -5,7 +5,6 @@ import {
   DEFAULT_MODEL,
   type ORModelOption,
 } from "@/lib/assistant/openrouter";
-import { imageSearchConfig } from "@/lib/assistant/web";
 import { IntegrationsForm } from "./integrations-form";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +12,6 @@ export const dynamic = "force-dynamic";
 export default async function IntegrationsPage() {
   await requireOwner();
   const config = await assistantConfig();
-  const search = await imageSearchConfig();
 
   // The model catalog needs no auth, but only matters once a key exists.
   let models: ORModelOption[] | null = null;
@@ -39,7 +37,6 @@ export default async function IntegrationsPage() {
         modelSource={config.modelSource}
         defaultModel={DEFAULT_MODEL}
         models={models}
-        searchSource={search.source}
       />
     </div>
   );

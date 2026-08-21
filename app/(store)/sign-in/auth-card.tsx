@@ -85,6 +85,16 @@ export function AuthCard({
           hint={mode === "register" ? "Use at least 8 characters." : undefined}
           required
         />
+        {mode === "signin" && (
+          <p className="-mt-2 text-right text-[13px]">
+            <Link
+              href="/forgot-password"
+              className="text-ink-secondary underline underline-offset-[3px] hover:text-ink"
+            >
+              Forgot password?
+            </Link>
+          </p>
+        )}
         {state?.error && (
           <p role="alert" className="text-[13px] text-error">
             {state.error}

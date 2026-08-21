@@ -5,7 +5,11 @@ import { verifyAdminToken, ADMIN_COOKIE } from "@/lib/admin/session";
 //   1. Admin realm guard — role enforcement happens again inside every action.
 //   2. Strict CSP with per-request nonces + strict-dynamic (SAQ A, brief §10).
 
-const PUBLIC_ADMIN_PATHS = ["/admin/sign-in"];
+const PUBLIC_ADMIN_PATHS = [
+  "/admin/sign-in",
+  "/admin/forgot-password",
+  "/admin/reset-password",
+];
 const PENDING_ADMIN_PATHS = ["/admin/verify-totp", "/admin/setup-totp"];
 
 // Third-party script inventory (brief §10) — every entry needs a reason:

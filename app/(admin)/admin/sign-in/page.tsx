@@ -36,6 +36,14 @@ export default function AdminSignInPage() {
       <Button type="submit" disabled={pending} full>
         {pending ? "Checking…" : "Continue"}
       </Button>
+      <p className="text-center text-[13px]">
+        <a
+          href="/admin/forgot-password"
+          className="text-ink-secondary underline underline-offset-[3px] hover:text-ink"
+        >
+          Forgot password?
+        </a>
+      </p>
     </form>
   );
 }

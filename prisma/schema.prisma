@@ -126,7 +126,20 @@ model User {
   addresses     Address[]
   orders        Order[]
   cart          Cart?
+  resetTokens   PasswordResetToken[]
   createdAt     DateTime  @default(now())
+}
+
+// Password reset (customer realm). Only the SHA-256 of the emailed token is
+// stored — a database leak never yields a working reset link.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }
 
 // Auth.js v5 provider link — one row per (provider, account)
@@ -185,6 +198,19 @@ model AdminUser {
   totpSecret   String? // set during first-login TOTP enrollment; MFA enforced via totpEnabled
   totpEnabled  Boolean   @default(false)
   lastLoginAt  DateTime?
+  resetTokens  AdminPasswordResetToken[]
+}
+
+// Password reset (admin realm — separate table, the realms share nothing).
+// Resetting the password never touches TOTP: sign-in still demands the code.
+model AdminPasswordResetToken {
+  id        String    @id @default(cuid())
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model AuditLog {

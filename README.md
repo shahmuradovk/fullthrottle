@@ -53,9 +53,9 @@ component gallery lives at `/gallery`.
 - **Storefront** — home, category listings with URL-driven dynamic filters
   (facet counts, numeric ranges, availability, price, brand), product pages
   with the fiche spec table, search, anonymous cart, sign-in/register,
-  checkout (Stripe Payment Element — card/Apple Pay/Google Pay — and
-  PayPal), order confirmation and tracking, account area (orders, addresses,
-  profile). JSON-LD on product pages, sitemap, JSONL product feed at
+  password reset by emailed single-use link, checkout (Stripe Payment
+  Element — card/Apple Pay/Google Pay — and PayPal), order confirmation and
+  tracking, account area (orders, addresses, profile). JSON-LD on product pages, sitemap, JSONL product feed at
   `/api/feed`.
 - **AI admin assistant** (`/admin/assistant`) — chat with a Claude model (via
   OpenRouter, `OPENROUTER_API_KEY` + optional `OPENROUTER_MODEL`) that does
@@ -71,7 +71,9 @@ component gallery lives at `/gallery`.
   serves it from `/api/images/[id]` with immutable CDN caching — so the CSP
   stays at `img-src 'self'` and photos survive the source URL going dead.
 - **Admin** (`/admin`, pin to a subdomain with `ADMIN_HOSTNAME`) — email +
-  password + mandatory TOTP, invite-only accounts with roles (OWNER /
+  password + mandatory TOTP, password reset by emailed single-use link
+  (30 min, TOTP still required, audit-logged; separate token table from the
+  customer realm), invite-only accounts with roles (OWNER /
   MANAGER / CONTENT — no price changes / ORDERS — fulfillment only),
   overview with to-pack queue, sections & brands, attribute template editor,
   product forms generated from the template, order transitions with the

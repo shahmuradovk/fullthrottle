@@ -6,6 +6,7 @@ import { canChangePrices } from "@/lib/admin/guard";
 import type { AdminSession } from "@/lib/admin/session";
 import { transitionOrder, OrderTransitionError } from "@/lib/orders";
 import { fetchImage, storeProductImage } from "@/lib/product-images";
+import { fetchPageMeta, imageSearchConfig, searchImages } from "./web";
 import { addNote, MAX_NOTE_LENGTH } from "./notes";
 import type { ORToolDef } from "./openrouter";
 import { AttributeType, OrderStatus, type Prisma } from "@prisma/client";
@@ -153,6 +154,27 @@ export const TOOL_DEFS: ORToolDef[] = [
         },
         ["sku", "image_url"]
       ),
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_product_images",
+      description:
+        "Google image search for real product photos. Returns direct image URLs with source page, title and dimensions — pick the hit that matches the EXACT model and colorway, then pass its image_url to set_product_image. Only works when the Google search integration is connected (Admin → Integrations); the error tells you if it isn't.",
+      parameters: obj(
+        { query: { type: "string", description: 'e.g. "Shoei X-Fifteen matte black helmet product photo"' } },
+        ["query"]
+      ),
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "fetch_page",
+      description:
+        "Fetch a public https product page and extract its title plus candidate product-image URLs (og:image first — that is almost always the official product photo). Use on manufacturer or major-retailer product pages you know, then feed the best candidate to set_product_image.",
+      parameters: obj({ url: { type: "string" } }, ["url"]),
     },
   },
   {
@@ -588,6 +610,45 @@ export async function executeTool(
         return {
           summary: `set photo for ${product.sku} (${Math.round(fetched.bytes.length / 1024)} KB ${fetched.contentType})`,
           result: JSON.stringify({ ok: true, image_url: image.url }),
+        };
+      }
+
+      case "search_product_images": {
+        requireRole(session, CATALOG_ROLES, "edit the catalog");
+        const query = String(args.query ?? "").trim();
+        if (!query) throw new ToolError("Give a search query.");
+        const cfg = await imageSearchConfig();
+        if (!cfg.key || !cfg.cx) {
+          throw new ToolError(
+            "Image search is not connected. The OWNER can add Google search keys under Admin → Integrations. Meanwhile: use fetch_page on a manufacturer/retailer product page you know, or ask the admin for a direct image URL."
+          );
+        }
+        const search = await searchImages(query, { key: cfg.key, cx: cfg.cx });
+        if (!search.ok) throw new ToolError(search.error);
+        return {
+          summary: `searched images: ${query}`,
+          result: JSON.stringify({ results: search.results }),
+        };
+      }
+
+      case "fetch_page": {
+        requireRole(session, CATALOG_ROLES, "edit the catalog");
+        const pageUrl = String(args.url ?? "").trim();
+        const page = await fetchPageMeta(pageUrl);
+        if (!page.ok) throw new ToolError(page.error);
+        let host = pageUrl;
+        try {
+          host = new URL(pageUrl).hostname;
+        } catch {
+          // keep raw
+        }
+        return {
+          summary: `read page ${host}`,
+          result: JSON.stringify({
+            title: page.title,
+            image_candidates: page.imageCandidates,
+            note: "og:image candidates come first — verify by passing one to set_product_image (it downloads and checks the actual file).",
+          }),
         };
       }
 

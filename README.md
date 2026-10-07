@@ -79,9 +79,10 @@ component gallery lives at `/gallery`.
   serves it from `/api/images/[id]` with immutable CDN caching — so the CSP
   stays at `img-src 'self'` and photos survive the source URL going dead.
 - **Admin** (`/admin`, pin to a subdomain with `ADMIN_HOSTNAME`) — email +
-  password + mandatory TOTP, password reset by emailed single-use link
-  (30 min, TOTP still required, audit-logged; separate token table from the
-  customer realm), invite-only accounts with roles (OWNER /
+  password + TOTP (on by default; the OWNER can waive it per account on the
+  Users screen, audit-logged), password reset by emailed single-use link
+  (30 min, TOTP still required where on, audit-logged; separate token table
+  from the customer realm), invite-only accounts with roles (OWNER /
   MANAGER / CONTENT — no price changes / ORDERS — fulfillment only),
   overview with to-pack queue, sections & brands, attribute template editor,
   product forms generated from the template, order transitions with the

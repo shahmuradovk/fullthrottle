@@ -34,11 +34,13 @@ export async function inviteAdminAction(
   const exists = await prisma.adminUser.findUnique({ where: { email } });
   if (exists) return { error: "That email already has an admin account." };
 
+  const totpRequired = formData.get("totpRequired") === "on";
   const admin = await prisma.adminUser.create({
     data: {
       email,
       role: parsed.data.role,
       passwordHash: await argonHash(parsed.data.password),
+      totpRequired,
     },
   });
   await writeAudit({
@@ -46,10 +48,41 @@ export async function inviteAdminAction(
     action: "admin.invite",
     entity: "AdminUser",
     entityId: admin.id,
-    after: { email: admin.email, role: admin.role },
+    after: { email: admin.email, role: admin.role, totpRequired },
   });
   revalidatePath("/admin/users");
   return {
-    created: `${email} can now sign in with the starting password. Two-factor setup runs on their first login.`,
+    created: totpRequired
+      ? `${email} can now sign in with the starting password. Two-factor setup runs on their first login.`
+      : `${email} can now sign in with the starting password (two-factor off for this account).`,
   };
+}
+
+// The OWNER decides per account whether two-factor is required. Turning it
+// off also clears any enrollment, so turning it back on starts a fresh
+// authenticator setup (useful when someone lost their phone).
+export async function setTotpRequiredAction(formData: FormData): Promise<void> {
+  const session = await requireOwner();
+  const adminId = formData.get("adminId");
+  if (typeof adminId !== "string") return;
+  const required = formData.get("required") === "true";
+
+  const before = await prisma.adminUser.findUnique({ where: { id: adminId } });
+  if (!before) return;
+
+  await prisma.adminUser.update({
+    where: { id: adminId },
+    data: required
+      ? { totpRequired: true }
+      : { totpRequired: false, totpEnabled: false, totpSecret: null },
+  });
+  await writeAudit({
+    actorId: session.adminId,
+    action: required ? "admin.2fa.require" : "admin.2fa.waive",
+    entity: "AdminUser",
+    entityId: adminId,
+    before: { totpRequired: before.totpRequired, totpEnabled: before.totpEnabled },
+    after: { totpRequired: required },
+  });
+  revalidatePath("/admin/users");
 }

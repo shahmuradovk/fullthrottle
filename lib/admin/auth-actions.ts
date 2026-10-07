@@ -61,6 +61,21 @@ export async function adminSignInAction(
   const ok = await argonVerify(admin.passwordHash, parsed.data.password);
   if (!ok) return { error: GENERIC_ERROR };
 
+  // The OWNER waived two-factor for this account on the Users screen.
+  if (!admin.totpRequired) {
+    await prisma.adminUser.update({
+      where: { id: admin.id },
+      data: { lastLoginAt: new Date() },
+    });
+    await createAdminSession({
+      adminId: admin.id,
+      email: admin.email,
+      role: admin.role,
+      stage: "full",
+    });
+    redirect("/admin");
+  }
+
   if (admin.totpEnabled && admin.totpSecret) {
     await createAdminSession({
       adminId: admin.id,
@@ -71,7 +86,7 @@ export async function adminSignInAction(
     redirect("/admin/verify-totp");
   }
 
-  // First login: MFA is mandatory — enrollment before anything else.
+  // Two-factor required but not set up yet — enrollment before anything else.
   await createAdminSession({
     adminId: admin.id,
     email: admin.email,
@@ -184,7 +199,7 @@ export async function adminRequestPasswordResetAction(
     await sendEmail({
       to: admin.email,
       subject: "Admin password reset — Fullthrottle",
-      text: `Someone asked to reset the Fullthrottle ADMIN password for this address. If that was you, set a new one here:\n${appUrl()}/admin/reset-password?token=${token}\n\nThe link works once and expires in ${ADMIN_RESET_TTL_MINUTES} minutes. Your authenticator (two-factor) code is still required to sign in afterwards.\n\nIf you didn't ask for this, ignore this email and tell the store owner.`,
+      text: `Someone asked to reset the Fullthrottle ADMIN password for this address. If that was you, set a new one here:\n${appUrl()}/admin/reset-password?token=${token}\n\nThe link works once and expires in ${ADMIN_RESET_TTL_MINUTES} minutes.${admin.totpRequired ? " Your authenticator (two-factor) code is still required to sign in afterwards." : ""}\n\nIf you didn't ask for this, ignore this email and tell the store owner.`,
     });
   }
   return { done: true };

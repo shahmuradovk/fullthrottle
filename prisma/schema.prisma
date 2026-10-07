@@ -197,6 +197,7 @@ model AdminUser {
   role         AdminRole
   totpSecret   String? // set during first-login TOTP enrollment; MFA enforced via totpEnabled
   totpEnabled  Boolean   @default(false)
+  totpRequired Boolean   @default(true) // the OWNER decides per account on the Users screen
   lastLoginAt  DateTime?
   resetTokens  AdminPasswordResetToken[]
   conversations AssistantConversation[]

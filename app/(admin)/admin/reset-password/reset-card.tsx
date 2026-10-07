@@ -15,7 +15,7 @@ export function AdminResetPasswordCard({ token }: { token: string }) {
       <div>
         <h1 className="font-display text-[28px] font-bold text-ink">NEW ADMIN PASSWORD</h1>
         <p className="mt-1 text-[13px] text-ink-secondary">
-          Two-factor stays on — you&rsquo;ll still need your authenticator code.
+          If two-factor is on for your account, you&rsquo;ll still need your authenticator code.
         </p>
       </div>
 

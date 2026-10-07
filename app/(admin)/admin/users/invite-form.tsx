@@ -50,6 +50,15 @@ export function InviteAdminForm() {
           required
         />
       </div>
+      <label className="flex items-center gap-2 self-center text-[13px] text-ink">
+        <input
+          type="checkbox"
+          name="totpRequired"
+          defaultChecked
+          className="h-4 w-4 accent-[var(--color-accent)]"
+        />
+        Require two-factor
+      </label>
       <Button type="submit" size="small" disabled={pending}>
         Invite admin
       </Button>

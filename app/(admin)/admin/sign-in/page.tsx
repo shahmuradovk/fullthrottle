@@ -16,7 +16,7 @@ export default function AdminSignInPage() {
       <div>
         <h1 className="font-display text-[28px] font-bold text-ink">ADMIN SIGN IN</h1>
         <p className="mt-1 text-[13px] text-ink-secondary">
-          Invite-only. Two-factor code required after the password.
+          Invite-only. Two-factor code after the password where it&rsquo;s on.
         </p>
       </div>
       <Input id="email" name="email" type="email" label="Email" autoComplete="username" required />

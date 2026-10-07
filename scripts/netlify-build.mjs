@@ -12,6 +12,18 @@ const run = (cmd, extraEnv = {}) => {
 };
 
 if (dbUrl) {
+  // One deploy shipped this migration as a non-idempotent duplicate and may
+  // have recorded it as failed, which blocks every later `migrate deploy`.
+  // Clearing that record lets the now-idempotent version re-apply; when it
+  // isn't in a failed state this errors harmlessly.
+  try {
+    execSync(
+      "npx prisma migrate resolve --rolled-back 20261007093000_admin_totp_required",
+      { stdio: "ignore", env: { ...process.env, DATABASE_URL: dbUrl } }
+    );
+  } catch {
+    // not failed — nothing to clear
+  }
   run("npx prisma migrate deploy", { DATABASE_URL: dbUrl });
   run("npx prisma db seed", { DATABASE_URL: dbUrl });
 } else {
